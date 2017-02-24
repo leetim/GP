@@ -1,0 +1,8 @@
+#define TYPE_NONE 0
+#define TYPE_IDENTIFICATE 1
+#define TYPE_LETERAL 2
+#define TYPE_SEPARATOR 3
+#define TYPE_OPERATION 4
+#define TYPE_SPACE 5
+#define TYPE_DIRECT 6
+#define TYPE_EOF 7
