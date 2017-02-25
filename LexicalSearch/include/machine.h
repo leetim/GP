@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <sstream>
+#include <defs.h>
 
 class Machine;
 class Condition;
@@ -11,7 +12,7 @@ class Lexeme{
 public:
   Lexeme(): str(), row(), col(), type(){};
   Lexeme(std::string s, int _row, int _col, int _type): str(s), row(_row), col(_col), type(_type){};
-  std::string print();
+  void print();
 private:
   std::string str;
   int row;
@@ -22,15 +23,16 @@ private:
 class Condition{
 public:
   virtual bool check(char c)=0;
-  virtual int get_type()=0;
+  int get_type();
+  void set_type(int);
   PCondition get_child(char c);
   PCondition add_child(PCondition);
-  std::string get_str();
   void clear();
   virtual ~Condition();
 private:
   std::vector<PCondition> childs;
   std::stringstream ss;
+  int type;
 };
 
 class Condition_scalar: public Condition{
@@ -38,7 +40,6 @@ public:
   Condition_scalar(): value(){};
   Condition_scalar(char c): value(c){};
   bool check(char c);
-  int get_type();
 private:
   char value;
 };
@@ -48,7 +49,6 @@ public:
   Condition_limits(): littler(), greater(){};
   Condition_limits(char lt, char gt): littler(lt), greater(gt){};
   bool check(char c);
-  int get_type();
 private:
   char littler;
   char greater;
@@ -60,7 +60,6 @@ public:
   Condition_unity(PCondition fst, PCondition scnd);
   Condition_unity(std::vector<PCondition>& cond): conditions(cond){};
   bool check(char c);
-  int get_type();
   ~Condition_unity();
 private:
   std::vector<PCondition> conditions;
@@ -68,12 +67,15 @@ private:
 
 class Machine{
 public:
-  Machine(){};
+  Machine(): current_line(), cur_ind(), col(), line_number(-1){};
   void learn();
   Lexeme next();
-  void add_str();
+  void add_str(std::string);
 private:
   std::string current_line;
+  int cur_ind;
+  int col;
+  int line_number;
   PCondition start;
   PCondition cur;
 };
