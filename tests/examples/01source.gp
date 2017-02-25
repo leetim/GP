@@ -8,15 +8,15 @@ type
 var
   i: Int;
 
-def func(arg: long)
+def func(arg: Long)
   a: Int[20];
   for $i in @a do
-    
+
   end
 end
 
 do
-  t: long;
+  t: Long;
   for $i in [0..10] do
 
   end

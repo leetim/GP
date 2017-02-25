@@ -8,5 +8,5 @@ set(CMAKE_EXE_LINKER_FLAGS "-pthread")
 include_directories(./include)
 
 #Бинарники
-set( LEXICAL_SEARCH_SOURCE ./src/lexicalSearch.cpp )
+set( LEXICAL_SEARCH_SOURCE ./src/lexicalSearch.cpp ./src/machine.cpp )
 add_library( lexicalSearch STATIC ${LEXICAL_SEARCH_SOURCE} )
