@@ -232,7 +232,9 @@ PCondition get_operator(){
     '&',
     '|',
     '^',
-    ';'
+    ';',
+    ',',
+    ':'
   };
   PCondition temp = get_union(a, TYPE_OPERATOR);
   temp->add_child(temp);
@@ -290,7 +292,9 @@ void Machine::learn(){
 }
 
 void Machine::add_str(string s){
+  printf("%s\n", s.c_str());
   current_line = s;
+  cur_ind = 0;
   line_number++;
 }
 
@@ -302,13 +306,19 @@ Lexeme Machine::next(){
     char c = current_line[cur_ind];
     PCondition temp = cur->get_child(c);
     if (temp == NULL){
-      Lexeme l(ss.str(), line_number, col, cur->get_type());
-      cur = start;
-      return l;
+      // printf("IN NEXT: cur_ind = %d %d %c\n", cur_ind, current_line.size(), current_line[cur_ind]);
+      break;
     }
     ss << c;
     cur = temp;
     cur_ind++;
   }
-  throw 2;
+  Lexeme l(ss.str(), line_number, col, cur->get_type());
+  cur = start;
+  if ((unsigned int)cur_ind == current_line.size()){
+    // printf("END_LINE: cur_ind = %d %d %c\n//////////////////////\n", cur_ind, current_line.size(), current_line[cur_ind]);
+    // l.print();
+    throw l;
+  }
+  return l;
 }
