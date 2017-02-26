@@ -6,17 +6,17 @@ type
     diBottom
   };
 var
-  i: Int;
+  $i: Int;
 
-def func(arg: Long)
-  a: Int[20];
+def func(@arg: Long)
+  @a: Int[20];
   for $i in @a do
 
   end
 end
 
 do
-  t: Long;
+  $t: Long;
   for $i in [0..10] do
 
   end

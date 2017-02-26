@@ -3,15 +3,22 @@
 #include <defs.h>
 #include <vector>
 #include <machine.h>
+#include <set>
+#include <queue>
+#include <fstream>
+
 
 class Searcher{
 public:
   Searcher(){};
   Searcher(std::string file_name);
-  Lexeme getNextLexema();
+  ~Searcher();
+  Lexeme next();
   void learn();
 private:
   void next_line();
   std::string current_line;
-  // int getInc(int a);
+  std::queue<Lexeme> q;
+  std::ifstream input_f;
+  Machine m;
 };

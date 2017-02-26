@@ -3,22 +3,45 @@
 
 using namespace std;
 
-////////////////////////////////////////////////////////////////////////////////
-//Lexeme
 
-static string types[8] = {
+static std::string types[] = {
   "NONE",
-  "IDENTIFICATE",
+  "IDENTIFICATOR",
   "LETERAL",
   "SEPARATOR",
   "OPERATOR",
   "SPACE",
-  "DIRECT",
-  "EOF"
+  "DIRECTIVE",
+  "EOF",
+  "LETERAL FLOAT",
+  "LETERAL INTEGER",
+  "LETERAL STRING",
+  "VARIABLE",
+  "ARRAY",
+  "COMMENT"
 };
 
+////////////////////////////////////////////////////////////////////////////////
+//Lexeme
+
+string Lexeme::get_str(){
+  return str;
+}
+
+int Lexeme::get_row(){
+  return row;
+}
+
+int Lexeme::get_col(){
+  return col;
+}
+
+int Lexeme::get_type(){
+  return type;
+}
+
 void Lexeme::print(){
-  printf("LEXEMA FOUNDED: %s, %d, %d, '%s'\n", types[type].c_str(), row, col, str.c_str());
+  printf("LEXEME FOUNDED: %s, %d, %d, '%s'\n", types[type].c_str(), row, col, str.c_str());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -69,7 +92,15 @@ bool Condition_scalar::check(char c){
   return c == value;
 }
 
+bool Condition_not_scalar::check(char c){
+  // printf("'%c' c\n'%c' value\n", c, value);
+  return c != value;
+}
+
 bool Condition_limits::check(char c){
+  // if (greater < littler){
+  //   printf("%d %d %d\n", littler, c, greater);
+  // }
   return (c >= littler) && (c <= greater);
 }
 
@@ -97,12 +128,17 @@ Condition_unity::~Condition_unity(){
 
 ////////////////////////////////////////////////////////////////////////////////
 //function for getting conditions
+
 PCondition get_scalar(char c){
   return new Condition_scalar(c);
 }
 
 PCondition get_limits(char l, char g){
   return new Condition_limits(l, g);
+}
+
+PCondition get_not_scalar(char c){
+  return new Condition_not_scalar(c);
 }
 
 PCondition get_A(){
@@ -116,11 +152,10 @@ PCondition get_a(){
 PCondition get_0(){
   PCondition temp = get_limits('0', '9');
   temp->add_child(temp);
-  temp->set_type(TYPE_LETERAL);
   return temp;
 }
 
-PCondition get_Aa0(int type){
+PCondition get_Aa0(){
   vector<PCondition> a = {
     get_A(),
     get_a(),
@@ -128,19 +163,57 @@ PCondition get_Aa0(int type){
   };
   PCondition temp = new Condition_unity(a);
   temp->add_child(temp);
+  return temp;
+}
+
+PCondition get_union(vector<char>& a, int type){
+  vector<PCondition> conds;
+  for (auto i = a.begin(); i != a.end(); i++){
+    conds.push_back(get_scalar(*i));
+  }
+  PCondition temp = new Condition_unity(conds);
   temp->set_type(type);
   return temp;
 }
 
+PCondition get_variable(int type, char c){
+  PCondition temp = get_scalar(c);
+  temp->add_child(get_a())->add_child(get_Aa0());
+  temp->set_type(type);
+  return temp;
+}
+
+PCondition get_identificate(){
+  PCondition temp = get_a();
+  temp->add_child(get_Aa0());
+  temp->set_type(TYPE_IDENTIFICATE);
+  return temp;
+}
+
+PCondition get_identificate_type(){
+  PCondition temp = get_A();
+  temp->add_child(get_Aa0());
+  temp->set_type(TYPE_IDENTIFICATE);
+  return temp;
+}
+
+PCondition get_leteral(){
+  PCondition temp1 = get_0();
+  PCondition temp2 = get_0();
+  temp1->set_type(TYPE_LETERAL);
+  temp2->set_type(TYPE_FLOAT_AFTER_POINT);
+  temp1->add_child(get_scalar('E'))->add_child(temp2);
+  return temp1;
+}
+
 PCondition get_spaces(){
-  vector<PCondition> a = {
-    get_scalar(' '),
-    get_scalar('\t'),
-    get_scalar('\n')
+  vector<char> a = {
+    ' ',
+    '\t',
+    '\n'
   };
-  PCondition temp = new Condition_unity(a);
+  PCondition temp = get_union(a, TYPE_SPACE);
   temp->add_child(temp);
-  temp->set_type(TYPE_SPACE);
   return temp;
 }
 
@@ -158,15 +231,11 @@ PCondition get_operator(){
     '.',
     '&',
     '|',
-    '^'
+    '^',
+    ';'
   };
-  vector<PCondition> conds;
-  for (auto i = a.begin(); i != a.end(); i++){
-    conds.push_back(get_scalar(*i));
-  }
-  PCondition temp = new Condition_unity(conds);
+  PCondition temp = get_union(a, TYPE_OPERATOR);
   temp->add_child(temp);
-  temp->set_type(TYPE_OPERATOR);
   return temp;
 }
 
@@ -179,12 +248,25 @@ PCondition get_separator(){
     '{',
     '}'
   };
-  vector<PCondition> conds;
-  for (auto i = a.begin(); i != a.end(); i++){
-    conds.push_back(get_scalar(*i));
-  }
-  PCondition temp = new Condition_unity(conds);
-  temp->set_type(TYPE_SEPARATOR);
+  return get_union(a, TYPE_SEPARATOR);
+}
+
+PCondition get_comment(){
+  PCondition head = get_scalar('#');
+  PCondition tail = get_scalar('\n');
+  PCondition body = get_not_scalar('\n');
+  body->add_child(body);
+  tail->set_type(TYPE_COMMENT);
+  // PCondition finish1 = get_scalar('/');
+  // finish1->set_type(TYPE_COMMENT);
+  head->add_child(body)->add_child(tail);
+  // head->add_child(get_scalar('*'))->add_child(get_not_scalar('*'))->add_child(get_scalar('*'))->add_child(finish1);
+  return head;
+}
+
+PCondition get_eof(){
+  PCondition temp = get_scalar((char)34);
+  temp->set_type(TYPE_EOF);
   return temp;
 }
 
@@ -193,48 +275,17 @@ PCondition get_separator(){
 
 void Machine::learn(){
   start = new Condition_unity;
-  PCondition temp;
-  temp = get_scalar('$');
-  temp->add_child(get_a())->add_child(get_Aa0(TYPE_IDENTIFICATE));
-  temp->set_type(TYPE_IDENTIFICATE);
-  start->add_child(temp);
+  start->add_child(get_variable(TYPE_VAR, '$'));
+  start->add_child(get_variable(TYPE_ARRAY, '@'));
+  start->add_child(get_identificate());
+  start->add_child(get_identificate_type());
+  start->add_child(get_leteral());
+  start->add_child(get_spaces());
+  start->add_child(get_operator());
+  start->add_child(get_separator());
+  start->add_child(get_comment());
+  start->add_child(get_eof());
 
-  temp = get_scalar('@');
-  temp->add_child(get_a())->add_child(get_Aa0(TYPE_IDENTIFICATE));
-  temp->set_type(TYPE_IDENTIFICATE);
-  start->add_child(temp);
-
-  temp = get_a();
-  temp->add_child(get_Aa0(TYPE_IDENTIFICATE));
-  temp->set_type(TYPE_IDENTIFICATE);
-  start->add_child(temp);
-
-  temp = get_0();
-  // temp->add_child(get_scalar('.'))->add_child(get_0());
-  temp->set_type(TYPE_LETERAL);
-  start->add_child(temp);
-
-  temp = get_spaces();
-  temp->set_type(TYPE_SPACE);
-  start->add_child(temp);
-
-  temp = get_operator();
-  temp->set_type(TYPE_OPERATOR);
-  start->add_child(temp);
-
-  temp = get_separator();
-  temp->set_type(TYPE_SEPARATOR);
-  start->add_child(temp);
-
-
-  // start->add_child(get_scalar('$'))->add_child(get_a())->add_child(get_Aa0(TYPE_IDENTIFICATE));
-  // start->add_child(get_scalar('@'))->add_child(get_a())->add_child(get_Aa0(TYPE_IDENTIFICATE));
-  // start->add_child(get_a())->add_child(get_Aa0(TYPE_IDENTIFICATE));
-  // start->add_child(get_0())->add_child(get_scalar('.'))->add_child(get_0());
-  // start->add_child(get_spaces());
-  // start->add_child(get_operator());
-  // start->add_child(get_scalar('#'))->
-  // start->add_child(new Condition_scalar('\"'))->
   cur = start;
 }
 

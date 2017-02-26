@@ -15,10 +15,9 @@ int main(int argc, char** argv){
 
   Machine m;
   m.learn();
-  m.add_str("  for $i in [0..10] do\n");
+  m.add_str("  for $i in #[0..10] do\n ");
   try{
     for (int i = 0; i < 15 ; i++){
-      // cout << "123" << endl;
       m.next().print();
     }
   }
