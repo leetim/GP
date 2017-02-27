@@ -8,22 +8,6 @@ class Condition;
 typedef Machine* PMachine;
 typedef Condition* PCondition;
 
-class Lexeme{
-public:
-  Lexeme(): str(), row(), col(), type(){};
-  Lexeme(std::string s, int _row, int _col, int _type): str(s), row(_row), col(_col), type(_type){};
-  std::string get_str();
-  int get_row();
-  int get_col();
-  int get_type();
-  void print();
-private:
-  std::string str;
-  int row;
-  int col;
-  int type;
-};
-
 class Condition{
 public:
   virtual bool check(char c)=0;

@@ -7,7 +7,10 @@ using namespace std;
 
 Searcher::Searcher(string file_name){
   input_f.open(file_name);
-  buf_size = 2000;
+
+  input_f.seekg (0, input_f.end);
+  buf_size = input_f.tellg();
+  input_f.seekg (0, input_f.beg);
   buffer = new char[buf_size];
   current_ind = 0;
 }
@@ -29,9 +32,6 @@ Lexeme Searcher::next(){
       t = m.next();
     }
     catch(Lexeme e){
-      if (e.get_type() == TYPE_NONE){
-        throw e;
-      }
       if (!q.empty()){
         throw e;
       }
@@ -39,6 +39,10 @@ Lexeme Searcher::next(){
         next_line();
         return e;
       }
+      t = e;
+    }
+    if (t.get_type() == TYPE_NONE || t.get_type() == TYPE_EOF){
+      throw t;
     }
     if (t.get_type() == TYPE_FLOAT_AFTER_POINT && q.empty()){
       throw t;
@@ -75,9 +79,9 @@ void Searcher::learn(){
 void Searcher::refresh_buffer(){
   input_f.read(buffer, buf_size);
   current_ind = 0;
-  for (int i = 0; i < 10; i++){
-    cout << (int)buffer[i] << endl;
-  }
+  // for (int i = 0; i < 10; i++){
+  //   cout << (int)buffer[i] << endl;
+  // }
 }
 
 void Searcher::next_line(){
@@ -92,10 +96,7 @@ void Searcher::next_line(){
       break;
     }
     if (i + 1 >= buf_size){
-      s = s + string(&buffer[ind], i - ind + 1);
-      refresh_buffer();
-      i = 0;
-      // break;
+      s = s + string(1, (char)34);
     }
     i++;
   }

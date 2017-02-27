@@ -3,47 +3,6 @@
 
 using namespace std;
 
-
-static std::string types[] = {
-  "NONE",
-  "IDENTIFICATOR",
-  "LETERAL",
-  "SEPARATOR",
-  "OPERATOR",
-  "SPACE",
-  "DIRECTIVE",
-  "EOF",
-  "LETERAL FLOAT",
-  "LETERAL INTEGER",
-  "LETERAL STRING",
-  "VARIABLE",
-  "ARRAY",
-  "COMMENT"
-};
-
-////////////////////////////////////////////////////////////////////////////////
-//Lexeme
-
-string Lexeme::get_str(){
-  return str;
-}
-
-int Lexeme::get_row(){
-  return row;
-}
-
-int Lexeme::get_col(){
-  return col;
-}
-
-int Lexeme::get_type(){
-  return type;
-}
-
-void Lexeme::print(){
-  printf("LEXEME FOUNDED: %s, %d, %d, '%s'\n", types[type].c_str(), row, col, str.c_str());
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 //Condition
 
@@ -217,28 +176,41 @@ PCondition get_spaces(){
   return temp;
 }
 
-PCondition get_operator(){
-  vector<char> a = {
-    '!',
-    '%',
-    '*',
-    '-',
-    '+',
-    '=',
-    '>',
-    '<',
-    '/',
-    '.',
-    '&',
-    '|',
-    '^',
-    ';',
-    ',',
-    ':'
+void get_operator(PCondition start){
+  vector<string> a = {
+    "!",
+    "%=",
+    "**",
+    "--",
+    "++",
+    ">>",
+    "<<",
+    "==",
+    ">=",
+    "<=",
+    "/=",
+    "...",
+    "&&",
+    "||",
+    "^",
+    ";",
+    ",",
+    ":"
   };
-  PCondition temp = get_union(a, TYPE_OPERATOR);
-  temp->add_child(temp);
-  return temp;
+  for (auto i = a.begin(); i != a.end(); i++){
+    PCondition cur = start;
+    for (int j = 0; j < (*i).size(); j++){
+      char c = (*i)[j];
+      PCondition temp = cur->get_child(c);
+      if (temp == NULL){
+        cur = cur->add_child(get_scalar(c));
+        cur->set_type(TYPE_OPERATOR);
+      }
+      else{
+        cur = temp;
+      }
+    }
+  }
 }
 
 PCondition get_separator(){
@@ -283,7 +255,7 @@ void Machine::learn(){
   start->add_child(get_identificate_type());
   start->add_child(get_leteral());
   start->add_child(get_spaces());
-  start->add_child(get_operator());
+  get_operator(start);
   start->add_child(get_separator());
   start->add_child(get_comment());
   start->add_child(get_eof());
@@ -315,7 +287,7 @@ Lexeme Machine::next(){
   }
   Lexeme l(ss.str(), line_number, col, cur->get_type());
   cur = start;
-  if ((unsigned int)cur_ind == current_line.size()){
+  if ((unsigned int)cur_ind == current_line.size() || cur->get_type() == TYPE_EOF){
     // printf("END_LINE: cur_ind = %d %d %c\n//////////////////////\n", cur_ind, current_line.size(), current_line[cur_ind]);
     // l.print();
     throw l;
