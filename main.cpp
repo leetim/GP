@@ -21,12 +21,21 @@ int main(int argc, char** argv){
   // cout << "123" << endl;
   s.learn();
   try{
-    while (true){
-      s.next().print();
+    try{
+      while (true){
+        s.next().print();
+      }
+    }
+    catch(Lexeme e){
+      e.print();
     }
   }
-  catch(Lexeme e){
-    e.print();
+  catch(Errors::Unknown_lexeme e1){
+    printf("Unknown_lexeme %d %d '%s'\n", e1.lex.get_row(), e1.lex.get_col(), e1.lex.get_str().c_str());
+    return 1;
+  }
+  catch(...){
+    printf("Unknown error\n");
   }
   return 0;
 }

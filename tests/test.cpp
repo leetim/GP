@@ -5,7 +5,7 @@
 
 #define GP_FILE ".gp"
 #define GP_DIR "../examples/"
-#define OUT_FILE ".out"
+#define OUT_FILE ".outgp"
 #define OUT_DIR "../lexer_results/"
 
 using namespace std;
@@ -25,8 +25,11 @@ vector<string> files = {
 struct TestLexeme{
 	TestLexeme();
 	TestLexeme(ifstream& input){
+		// char v[256];
 		input >> type >> row >> col >> value;
-		if (value == "NewLine"){
+		// input.getline(v, 256);
+		// value = string(v);
+		if (value == "NewLine" || type == "COMMENT"){
 			value += "\n";
 		}
 	}
@@ -52,10 +55,11 @@ protected:
 	}
 
 	void comp(Lexeme& l, TestLexeme& lt){
-		ASSERT_EQ(l.get_value(), lt.value);
-		ASSERT_EQ(l.get_type_str(), lt.type);
-		ASSERT_EQ(l.get_row() + 1, lt.row);
-		ASSERT_EQ(l.get_col() + 1, lt.col);
+		// l.print();
+		EXPECT_EQ(l.get_value(), lt.value);
+		EXPECT_EQ(l.get_type_str(), lt.type);
+		EXPECT_EQ(l.get_row() + 1, lt.row);
+		EXPECT_EQ(l.get_col() + 1, lt.col);
 	}
 
 	void preparation(string file){
@@ -63,23 +67,23 @@ protected:
 			delete s;
 			s = NULL;
 		}
-		s = new Searcher(GP_DIR + files[0] + GP_FILE);
+		s = new Searcher(GP_DIR + file + GP_FILE);
 		s->learn();
-		input.open(OUT_DIR + files[0] + OUT_FILE);
+		input.open(OUT_DIR + file + OUT_FILE);
 	}
 
 	void testingFile(string file){
-		preparation(files[0]);
+		preparation(file);
 		while (true){
 			TestLexeme lt(input);
 			if (lt.type == "EOF"){
 				try{
-					s->next();
+					Lexeme l = s->next();
 				}
 				catch(Lexeme e){
 					comp(e, lt);
-					break;
 				}
+				break;
 			}
 			Lexeme l = s->next();
 			comp(l, lt);
@@ -110,13 +114,13 @@ TEST_F(LexerTest, 05_Test){
 	testingFile(files[4]);
 }
 
-TEST_F(LexerTest, 06_Test){
-	testingFile(files[5]);
-}
-
-// TEST_F(LexerTest, 02_Test){
-// 	testingFile(files[1]);
+// TEST_F(LexerTest, 06_Test){
+// 	testingFile(files[5]);
 // }
+
+TEST_F(LexerTest, Exception_test){
+	ASSERT_ANY_THROW(testingFile(files[5]));
+}
 
 int main(int argc, char* argv[]){
 	::testing::InitGoogleTest(&argc, argv);

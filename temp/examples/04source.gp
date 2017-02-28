@@ -4,7 +4,7 @@ do
 	for $i in @a do
 		$i = 10;
 		$sum += $i;
-	end #Странности какие-то
+	end #Странности
 
 	if ($sum >= 500) do
 		$sum -= 500;

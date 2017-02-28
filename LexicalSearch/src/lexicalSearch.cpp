@@ -32,6 +32,10 @@ Lexeme Searcher::next(){
       t = m.next();
     }
     catch(Lexeme e){
+      if (e.get_type() == TYPE_EOF){
+        // printf("EOF FOUNDED\n");
+        throw e;
+      }
       if (!q.empty()){
         t = q.front();
         q.pop();
@@ -40,7 +44,6 @@ Lexeme Searcher::next(){
       }
       next_line();
       return e;
-      t = e;
     }
     if (t.get_type() == TYPE_NONE || t.get_type() == TYPE_EOF){
       throw t;
