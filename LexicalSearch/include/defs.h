@@ -38,6 +38,7 @@ public:
   int get_row();
   int get_col();
   int get_type();
+  std::string get_type_str();
   std::string get_value();
   void print();
 private:

@@ -18,7 +18,7 @@ set(GTEST_LINKS gtest gtest_main gmock gmock_main)
 
 #Исходники тестов и их линковка
 add_executable(test1 test.cpp)
-target_link_libraries(test1 gtest gtest_main gmock gmock_main)
+target_link_libraries(test1 gtest gtest_main gmock gmock_main lexicalSearch)
 
 #Добавление тестов
 add_test(NAME Alloc_Test COMMAND test1)

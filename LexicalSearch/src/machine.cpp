@@ -178,7 +178,7 @@ PCondition get_spaces(){
 
 void get_operator(PCondition start){
   vector<string> a = {
-    "!",
+    "!=",
     "%=",
     "**",
     "--",
@@ -195,11 +195,16 @@ void get_operator(PCondition start){
     "^",
     ";",
     ",",
-    ":"
+    ":",
+    "+=",
+    "-=",
+    "*=",
+    "|=",
+    "&="
   };
   for (auto i = a.begin(); i != a.end(); i++){
     PCondition cur = start;
-    for (int j = 0; j < (*i).size(); j++){
+    for (unsigned int j = 0; j < (*i).size(); j++){
       char c = (*i)[j];
       PCondition temp = cur->get_child(c);
       if (temp == NULL){
@@ -264,7 +269,7 @@ void Machine::learn(){
 }
 
 void Machine::add_str(string s){
-  printf("%s\n", s.c_str());
+  // printf("%s\n", s.c_str());
   current_line = s;
   cur_ind = 0;
   line_number++;

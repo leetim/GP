@@ -33,12 +33,13 @@ Lexeme Searcher::next(){
     }
     catch(Lexeme e){
       if (!q.empty()){
-        throw e;
+        t = q.front();
+        q.pop();
+        q.push(e);
+        e = t;
       }
-      else{
-        next_line();
-        return e;
-      }
+      next_line();
+      return e;
       t = e;
     }
     if (t.get_type() == TYPE_NONE || t.get_type() == TYPE_EOF){
@@ -50,7 +51,7 @@ Lexeme Searcher::next(){
     if (t.get_type() != TYPE_LETERAL && q.empty()){
       return t;
     }
-    cout << "PUSH " << t.get_str() << endl;
+    // cout << "PUSH " << t.get_str() << endl;
     q.push(t);
     if (q.size() == 3){
       Lexeme t1, t2, t3;

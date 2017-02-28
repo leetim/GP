@@ -7,15 +7,15 @@ using namespace std;
 static std::string types[] = {
   "NONE",
   "IDENTIFICATOR",
-  "LETERAL",
+  "LETERAL_INTEGER",
   "SEPARATOR",
   "OPERATOR",
   "SPACE",
   "DIRECTIVE",
   "EOF",
-  "LETERAL FLOAT",
-  "LETERAL INTEGER",
-  "LETERAL STRING",
+  "LETERAL_FLOAT",
+  "LETERAL_INTEGER",
+  "LETERAL_STRING",
   "VARIABLE",
   "ARRAY",
   "COMMENT"
@@ -40,6 +40,10 @@ int Lexeme::get_type(){
   return type;
 }
 
+string Lexeme::get_type_str(){
+  return types[type];
+}
+
 string Lexeme::get_value(){
   stringstream ss;
   switch (type){
@@ -48,8 +52,10 @@ string Lexeme::get_value(){
     case TYPE_FLOAT_AFTER_POINT:
       throw Errors::Unknown_lexeme(*this);
     case TYPE_SPACE:
-      if (str.size() == 1 && str[0] == '\n'){
-          return "NewLine";
+      for (unsigned int i = 0; i < str.size(); i++){
+        if (str[i] == '\n'){
+          return "NewLine\n";
+        }
       }
       return "Spaces";
     case TYPE_DIRECT:
@@ -58,7 +64,7 @@ string Lexeme::get_value(){
     case TYPE_EOF:
       return "EndOfFile";
     case TYPE_LETERAL:
-      type = TYPE_INT;
+      // type = TYPE_INT;
     case TYPE_SEPARATOR:
     case TYPE_OPERATOR:
     case TYPE_FLOAT:
@@ -73,5 +79,5 @@ string Lexeme::get_value(){
 }
 
 void Lexeme::print(){
-  printf("%s, %d, %d, %s\n", types[type].c_str(), row, col, get_value().c_str());
+  printf("%s %d %d %s\n", types[type].c_str(), row+1, col+1, get_value().c_str());
 }
