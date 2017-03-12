@@ -1,5 +1,6 @@
 #include <machine.h>
 #include <stdio.h>
+#include <iostream>
 
 using namespace std;
 
@@ -10,13 +11,15 @@ LexemeType Condition::get_type(){
   return type;
 }
 
-void Condition::set_type(LexemeType t){
+PCondition Condition::set_type(LexemeType t){
   type = t;
   for (auto i = childs.begin(); i != childs.end(); i++){
     if ((*i)->type != this->type){
       (*i)->set_type(t);
     }
   }
+  PCondition temp;
+  return temp;
 }
 
 PCondition Condition::add_child(PCondition cond){
@@ -200,6 +203,23 @@ PCondition get_leteral_str(){
   temp1->add_child(get_scalar('\''));
   temp1->set_type(TYPE_STRING);
   return temp1;
+}
+
+PCondition get_active_str(){
+  PCondition temp = get_scalar('\"');
+  PCondition finish = get_scalar('\"');
+  finish->set_type(TYPE_ACTIVE_STRING);
+  PCondition body = get_negative(get_union('\"', '\\'));
+  body->add_child(body);
+  PCondition escape = get_scalar('\\');
+  PCondition escape_body = escape->add_child(get_negative(get_scalar('\0')));
+  escape_body->add_child(body);
+  escape_body->add_child(finish);
+  escape_body->add_child(escape);
+  temp->add_child(body);
+  temp->add_child(finish);
+  temp->add_child(escape);
+  return temp;
 }
 
 PCondition get_spaces(){

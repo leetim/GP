@@ -65,6 +65,7 @@ protected:
 			s = NULL;
 		}
 		s = new Searcher(GP_DIR + file + GP_FILE);
+		// cout << 123 << endl;
 		s->learn();
 		input.open(OUT_DIR + file + OUT_FILE);
 	}
@@ -144,6 +145,30 @@ TEST_F(LexerTest, 12_More_arrays){
 
 TEST_F(LexerTest, 13_Comment){
 	testingFile(files[12]);
+}
+
+TEST_F(LexerTest, 14_Separators){
+	testingFile(files[13]);
+}
+
+TEST_F(LexerTest, 15_Identificators){
+	testingFile(files[14]);
+}
+
+TEST_F(LexerTest, 16_Integers){
+	testingFile(files[15]);
+}
+
+TEST_F(LexerTest, 17_Float){
+	testingFile(files[16]);
+}
+
+TEST_F(LexerTest, 18_Passive_strs){
+	testingFile(files[17]);
+}
+
+TEST_F(LexerTest, 19_Comments){
+	testingFile(files[18]);
 }
 
 int main(int argc, char* argv[]){

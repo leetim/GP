@@ -79,12 +79,11 @@ string Lexeme::get_value(){
       }
       return "Spaces";
     case TYPE_DIRECT:
-    case TYPE_STRING:
-      return "'" + str + "'";
     case TYPE_EOF:
       return "EndOfFile";
     case TYPE_LETERAL:
       // type = TYPE_INT;
+    case TYPE_STRING:
     case TYPE_FLOAT:
     case TYPE_INT:
     case TYPE_SEPARATOR:

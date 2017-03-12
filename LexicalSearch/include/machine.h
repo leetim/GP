@@ -13,7 +13,7 @@ class Condition{
 public:
   virtual bool check(char c)=0;
   LexemeType get_type();
-  void set_type(LexemeType);
+  PCondition set_type(LexemeType);
   PCondition get_child(char c);
   PCondition add_child(PCondition);
   void clear();

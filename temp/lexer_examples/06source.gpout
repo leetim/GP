@@ -1,0 +1,7 @@
+1 1 ARRAY @ar2
+1 5 SPACE NewLine
+
+2 1 ARRAY @a_2
+2 5 SPACE NewLine
+
+3 1 EOF EndOfFile
