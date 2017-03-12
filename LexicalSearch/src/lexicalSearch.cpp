@@ -94,13 +94,13 @@ void Searcher::next_line(){
   int i = ind;
   string s;
   while (true){
-    if (buffer[i] == '\n' || buffer[i] == 34){
+    if (buffer[i] == '\n' || buffer[i] == 3){
       i++;
       s = s + string(&buffer[ind], i - ind);
       break;
     }
     if (i + 1 >= buf_size){
-      s = s + string(1, (char)34);
+      s = s + string(1, (char)3);
     }
     i++;
   }

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string>
 #include <defs.h>
+#include <set>
 
 using namespace std;
 
@@ -21,6 +22,22 @@ static std::string types[] = {
   "COMMENT"
 };
 
+set<string> reserved_words = {
+  "type",
+  "var",
+  "def",
+  "do",
+  "end",
+  "for",
+  "if",
+  "while",
+  "ref",
+  "return",
+  "in",
+  "record",
+  "case"
+};
+
 ////////////////////////////////////////////////////////////////////////////////
 //Lexeme
 
@@ -37,6 +54,9 @@ int Lexeme::get_col(){
 }
 
 int Lexeme::get_type(){
+  if (type == TYPE_IDENTIFICATE){
+
+  }
   return type;
 }
 
@@ -65,10 +85,10 @@ string Lexeme::get_value(){
       return "EndOfFile";
     case TYPE_LETERAL:
       // type = TYPE_INT;
-    case TYPE_SEPARATOR:
-    case TYPE_OPERATOR:
     case TYPE_FLOAT:
     case TYPE_INT:
+    case TYPE_SEPARATOR:
+    case TYPE_OPERATOR:
     case TYPE_VAR:
     case TYPE_ARRAY:
     case TYPE_COMMENT:
@@ -79,5 +99,5 @@ string Lexeme::get_value(){
 }
 
 void Lexeme::print(){
-  printf("%s %d %d %s\n", types[type].c_str(), row+1, col+1, get_value().c_str());
+  printf("%d %d %s %s\n", row+1, col+1, types[type].c_str(), get_value().c_str());
 }

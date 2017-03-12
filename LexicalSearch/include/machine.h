@@ -2,25 +2,25 @@
 #include <vector>
 #include <sstream>
 #include <defs.h>
+#include <memory>
 
 class Machine;
 class Condition;
 typedef Machine* PMachine;
-typedef Condition* PCondition;
+typedef std::shared_ptr<Condition> PCondition;
 
 class Condition{
 public:
   virtual bool check(char c)=0;
-  int get_type();
-  void set_type(int);
+  LexemeType get_type();
+  void set_type(LexemeType);
   PCondition get_child(char c);
   PCondition add_child(PCondition);
   void clear();
-  virtual ~Condition();
 private:
   std::vector<PCondition> childs;
   std::stringstream ss;
-  int type;
+  LexemeType type;
 };
 
 class Condition_scalar: public Condition{
@@ -59,9 +59,27 @@ public:
   Condition_unity(PCondition fst, PCondition scnd);
   Condition_unity(std::vector<PCondition>& cond): conditions(cond){};
   bool check(char c);
-  ~Condition_unity();
 private:
   std::vector<PCondition> conditions;
+};
+
+class Condition_intersection: public Condition_unity{
+public:
+  Condition_intersection(): conditions(){};
+  Condition_intersection(PCondition fst, PCondition scnd): Condition_unity(fst, scnd){};
+  Condition_intersection(std::vector<PCondition>& cond): conditions(cond){};
+  bool check(char c);
+private:
+  std::vector<PCondition> conditions;
+};
+
+class Condition_negative: public Condition{
+public:
+  Condition_negative(): cond(){};
+  Condition_negative(PCondition c): cond(c){};
+  bool check(char c);
+private:
+  PCondition cond;
 };
 
 class Machine{
