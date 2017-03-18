@@ -51,7 +51,7 @@ protected:
 
 	void comp(Lexeme& l, TestLexeme& lt){
 		// l.print();
-		l.print();
+		// l.print();
 		ASSERT_EQ(l.get_value(), lt.value);
 		ASSERT_EQ(l.get_type_str(), lt.type);
 		ASSERT_EQ(l.get_row() + 1, lt.row);
@@ -78,8 +78,10 @@ protected:
 				try{
 					Lexeme l = s->next();
 				}
-				catch(Lexeme e){
-					comp(e, lt);
+				catch(Errors::End_of_file e){
+					// cout << "HI" << endl;
+					comp(e.last_lexeme, lt);
+					// return;
 				}
 				break;
 			}
@@ -169,6 +171,18 @@ TEST_F(LexerTest, 18_Passive_strs){
 
 TEST_F(LexerTest, 19_Comments){
 	testingFile(files[18]);
+}
+
+TEST_F(LexerTest, 20_operators_points1){
+	testingFile(files[19]);
+}
+
+TEST_F(LexerTest, 21_operators_points2){
+	testingFile(files[20]);
+}
+
+TEST_F(LexerTest, 22_operators_points_and_int){
+	testingFile(files[21]);
 }
 
 int main(int argc, char* argv[]){

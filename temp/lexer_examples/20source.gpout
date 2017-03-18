@@ -1,1 +1,10 @@
-1 1 EOF EndOfFile
+1 1 OPERATOR .
+1 2 SPACE NewLine
+
+2 1 OPERATOR ..
+2 3 SPACE NewLine
+
+3 1 OPERATOR ...
+3 4 SPACE NewLine
+
+4 1 EOF EndOfFile

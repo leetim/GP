@@ -33,8 +33,6 @@ void value_from_string(std::string target, T& result){
   ss >> result;
 }
 
-
-
 class Lexeme{
 public:
   Lexeme(): str(), row(), col(), type(){};
@@ -54,6 +52,19 @@ private:
 };
 
 namespace Errors{
+  struct End_of_line{
+    End_of_line(){};
+    End_of_line(Lexeme l): last_lexeme(l){};
+    Lexeme last_lexeme;
+  };
+
+  struct End_of_file{
+    End_of_file(){};
+    End_of_file(Lexeme l): last_lexeme(l){};
+    Lexeme last_lexeme;
+  };
+
+
   struct Unknown_symbol{
     Unknown_symbol(){};
     Unknown_symbol(char _c, int _row, int _col): c(_c), row(_row), col(_col){};

@@ -28,9 +28,9 @@ PCondition Condition::add_child(PCondition cond){
 }
 
 PCondition Condition::get_child(char c){
-  // printf("Length: %d '%c'\n", childs.size(), c);
   for (auto i = childs.begin(); i != childs.end(); i++){
     if ((*i)->check(c)){
+      // printf("Length: %d '%c'\n", childs.size(), c);
       return *i;
     }
   }
@@ -174,12 +174,14 @@ PCondition get_identificate_type(){
 }
 
 PCondition get_leteral(){
-  PCondition none_other(new Condition_unity(get_A(), get_a()));
-    none_other->set_type(TYPE_NONE);
+  // PCondition none_other(new Condition_unity(get_A(), get_a()));
+  //   none_other->set_type(TYPE_NONE);
   PCondition temp = get_0();
     temp->set_type(TYPE_INT);
   PCondition point = get_scalar('.');
     point->set_type(TYPE_FLOAT_POINT);
+  PCondition point1 = get_scalar('.');
+    point1->set_type(TYPE_FLOAT_POINT);
   PCondition temp1 = get_0();
     temp1->set_type(TYPE_FLOAT);
   PCondition none_e(new Condition_unity(get_scalar('E'), get_scalar('e')));
@@ -187,11 +189,13 @@ PCondition get_leteral(){
   PCondition temp2 = get_0();
     temp2->set_type(TYPE_FLOAT);
   temp->add_child(point)->add_child(temp1)->add_child(none_e)->add_child(temp2);
-  temp->add_child(none_other);
-  point->add_child(none_other);
-  temp1->add_child(none_other);
-  none_e->add_child(none_other);
-  temp2->add_child(none_other);
+  point->add_child(point1);
+  point1->add_child(point1);
+
+  // temp->add_child(none_other);
+  // temp1->add_child(none_other);
+  // none_e->add_child(none_other);
+  // temp2->add_child(none_other);
   return temp;
 }
 
@@ -309,6 +313,7 @@ PCondition get_eof(){
 
 void Machine::learn(){
   start = PCondition(new Condition_unity);
+  cur = start;
   start->add_child(get_variable(TYPE_VAR, '$'));
   start->add_child(get_variable(TYPE_ARRAY, '@'));
   start->add_child(get_identificate());
@@ -320,8 +325,6 @@ void Machine::learn(){
   start->add_child(get_separator());
   start->add_child(get_comment());
   start->add_child(get_eof());
-
-  cur = start;
 }
 
 void Machine::add_str(string s){
@@ -335,23 +338,28 @@ Lexeme Machine::next(){
   stringstream ss;
   col = cur_ind;
   while ((unsigned int)cur_ind < current_line.size()){
-    // printf("hi\n");
     char c = current_line[cur_ind];
     PCondition temp = cur->get_child(c);
     if (temp == NULL){
-      // printf("IN NEXT: cur_ind = %d %d %c\n", cur_ind, current_line.size(), current_line[cur_ind]);
       break;
     }
     ss << c;
     cur = temp;
     cur_ind++;
   }
+  // cout << cur->get_type() << endl;
   Lexeme l(ss.str(), line_number, col, cur->get_type());
   cur = start;
-  if ((unsigned int)cur_ind == current_line.size() || cur->get_type() == TYPE_EOF){
-    // printf("END_LINE: cur_ind = %d %d %c\n//////////////////////\n", cur_ind, current_line.size(), current_line[cur_ind]);
-    // l.print();
-    throw l;
+  if ((unsigned int)cur_ind == current_line.size()){
+    throw Errors::End_of_line(l);
   }
-  return l;
+  // cout << cur->get_type() << " " << TYPE_EOF << endl;
+  switch(l.get_type()){
+    case TYPE_EOF:
+      throw Errors::End_of_file(l);
+    case TYPE_NONE:
+      throw Errors::Unknown_lexeme(l);
+    default:
+      return l;
+  }
 }

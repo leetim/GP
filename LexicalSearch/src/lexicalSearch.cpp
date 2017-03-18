@@ -27,52 +27,38 @@ Lexeme Searcher::next(){
     q.pop();
     return t;
   }
-  while (true){
-    try{
-      t = m.next();
-    }
-    catch(Lexeme e){
-      if (e.get_type() == TYPE_EOF){
-        // printf("EOF FOUNDED\n");
-        throw e;
-      }
-      if (!q.empty()){
-        t = q.front();
-        q.pop();
-        q.push(e);
-        e = t;
-      }
-      next_line();
-      return e;
-    }
-    if (t.get_type() == TYPE_NONE || t.get_type() == TYPE_EOF){
-      throw t;
-    }
-    if (t.get_type() == TYPE_FLOAT_AFTER_POINT && q.empty()){
-      throw t;
-    }
-    if (t.get_type() != TYPE_LETERAL && q.empty()){
-      return t;
-    }
-    // cout << "PUSH " << t.get_str() << endl;
-    q.push(t);
-    if (q.size() == 3){
-      Lexeme t1, t2, t3;
-      t1 = q.front(); q.pop();
-      t2 = q.front(); q.pop();
-      t3 = q.front(); q.pop();
-      if (t2.get_str() == "." && (t3.get_type() == TYPE_LETERAL || t3.get_type() == TYPE_FLOAT_AFTER_POINT)){
-        string str = t1.get_str() + t2.get_str() + t3.get_str();
-        return Lexeme(str, t1.get_row(), t1.get_col(), TYPE_FLOAT);
-      }
-      else{
-        q.push(t2);
-        q.push(t3);
-        return t1;
-      }
-    }
+  try{
+    t = m.next();
   }
+  catch(Errors::End_of_line e){
+    next_line();
+    return e.last_lexeme;
+  }
+  if (t.get_type() == TYPE_FLOAT_POINT){
+    string s = t.get_str();
+    unsigned int k = 0;
+    for (unsigned int i = 0; i < s.size(); i++){
+      if (s[i] == '.'){
+        k = i;
+        break;
+      }
+    }
+    if (s.size() - k > 3){
+      throw Errors::Unknown_lexeme(t);
+    }
+    unsigned int lim = s.size() - k;
+    for (unsigned int i = 0; i < lim; i++){
+      s.pop_back();
+    }
+    // cout << "POP " << lim << " " << string(lim, '.') << endl;
+    Lexeme integer(s, t.get_row(), t.get_col(), TYPE_INT);
+    Lexeme point(string(lim, '.'), t.get_row(), t.get_col() + k, TYPE_OPERATOR);
+    q.push(point);
+    return integer;
+  }
+  return t;
 }
+
 
 void Searcher::learn(){
   m.learn();
