@@ -1,0 +1,90 @@
+#include <syntax_tree.h>
+
+using namespace std;
+
+////////////////////////////////////////////////////////////////////////////////
+//Nocle
+
+void Nocle::set_lexeme(Lexeme lex){
+  lexeme = lex;
+}
+
+Lexeme Nocle::get_lexeme(){
+  return lexeme;
+}
+
+NocleType Nocle::get_type(){
+  return NT_BASE;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//NocleTerminate
+
+NocleType NocleTerminate::get_type(){
+  return NT_TERMINATE;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//NocleUnary
+
+void NocleUnary::set_child(PNocle ch){
+  child = ch;
+}
+
+PNocle NocleUnary::get_child(){
+  return child;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//NocleBinary
+
+void NocleBinary::set_child1(PNocle ch1){
+  child1 = ch1;
+}
+
+PNocle NocleBinary::get_child1(){
+  return child1;
+}
+
+void NocleBinary::set_child2(PNocle ch2){
+  child2 = ch2;
+}
+
+PNocle NocleBinary::get_child2(){
+  return child2;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//NocleExpression
+
+void NocleExpression::get_type(){
+  return NT_EXPR;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//NocleUnaryPrefix
+
+void NocleUnaryPrefix::get_type(){
+  return NT_UNARY_PREFIX;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//NocleUnaryPostfix
+
+void NocleUnaryPostfix::get_type(){
+  return NT_UNARY_POSTFIX;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//NocleBinaryLeft
+
+void NocleBinaryLeft::get_type(){
+  return NT_BINARY_LEFT;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//NocleBinaryRight
+
+void NocleBinaryRight::get_type(){
+  return NT_BINARY_RIGHT;
+}
