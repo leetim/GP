@@ -44,6 +44,7 @@ public:
   std::string get_type_str();
   std::string get_value();
   void print();
+  bool operator==(const LexemeType&) const;
 private:
   std::string str;
   int row;

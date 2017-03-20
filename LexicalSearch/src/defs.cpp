@@ -97,6 +97,11 @@ string Lexeme::get_value(){
   }
 }
 
+bool Lexeme::operator==(const LexemeType& ltype) const{
+  return type == ltype;
+}
+
+
 void Lexeme::print(){
   printf("%d %d %s %s\n", row+1, col+1, types[type].c_str(), get_value().c_str());
 }

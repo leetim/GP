@@ -21,6 +21,11 @@ Searcher::~Searcher(){
 }
 
 Lexeme Searcher::next(){
+  current = get_next();
+  return current;
+}
+
+Lexeme Searcher::get_next(){
   Lexeme t;
   if (!q.empty()){
     t = q.front();
@@ -59,6 +64,9 @@ Lexeme Searcher::next(){
   return t;
 }
 
+Lexeme Searcher::get_current(){
+  return current;
+}
 
 void Searcher::learn(){
   m.learn();

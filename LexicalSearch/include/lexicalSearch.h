@@ -14,10 +14,12 @@ public:
   Searcher(std::string file_name);
   ~Searcher();
   Lexeme next();
+  Lexeme get_current();
   void learn();
 private:
   void next_line();
   void refresh_buffer();
+  Lexeme get_next();
   std::string current_line;
   std::queue<Lexeme> q;
   std::ifstream input_f;
@@ -25,4 +27,5 @@ private:
   int buf_size;
   int current_ind;
   Machine m;
+  Lexeme current;
 };
