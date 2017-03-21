@@ -2,27 +2,31 @@
 #include <string>
 #include <defs.h>
 #include <set>
+#include <map>
+#include <iostream>
 
 using namespace std;
 
-static std::string types[] = {
-  "NONE",
-  "IDENTIFICATOR",
-  "LETERAL_INTEGER",
-  "SEPARATOR",
-  "OPERATOR",
-  "SPACE",
-  "DIRECTIVE",
-  "EOF",
-  "LETERAL_FLOAT",
-  "LETERAL_INTEGER",
-  "LETERAL_STRING",
-  "VARIABLE",
-  "ARRAY",
-  "COMMENT"
+static map<LexemeType, string> types = {
+  {TYPE_NONE ,"NONE"},
+  {TYPE_IDENTIFICATE ,"IDENTIFICATOR"},
+  {TYPE_SEPARATOR ,"SEPARATOR"},
+  {TYPE_OPERATOR ,"OPERATOR"},
+  {TYPE_SPACE ,"SPACE"},
+  {TYPE_DIRECT ,"DIRECTIVE"},
+  {TYPE_EOF ,"EOF"},
+  {TYPE_FLOAT ,"LETERAL_FLOAT"},
+  {TYPE_INT ,"LETERAL_INTEGER"},
+  {TYPE_STRING ,"LETERAL_STRING"},
+  {TYPE_VAR ,"VARIABLE"},
+  {TYPE_ARRAY ,"ARRAY"},
+  {TYPE_COMMENT ,"COMMENT"},
+  {TYPE_KEY_WORD ,"KEY_WORD"},
+  {TYPE_FUNCTION_NAME ,"FUNCTION_NAME"},
+  {TYPE_TYPE_NAME ,"TYPE_NAME"},
 };
 
-set<string> reserved_words = {
+set<string> key_words = {
   "type",
   "var",
   "def",
@@ -35,7 +39,12 @@ set<string> reserved_words = {
   "return",
   "in",
   "record",
-  "case"
+  "break",
+  "continue",
+  "else",
+  "true",
+  "false",
+  "null"
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -55,7 +64,12 @@ int Lexeme::get_col(){
 
 int Lexeme::get_type(){
   if (type == TYPE_IDENTIFICATE){
-
+    if (key_words.find(str) != key_words.end()){
+      type = TYPE_KEY_WORD;
+    }
+    else{
+      type = TYPE_FUNCTION_NAME;
+    }
   }
   return type;
 }
@@ -66,7 +80,7 @@ string Lexeme::get_type_str(){
 
 string Lexeme::get_value(){
   stringstream ss;
-  switch (type){
+  switch (get_type()){
     case TYPE_NONE:
       throw Errors::Unknown_lexeme(*this);
     case TYPE_FLOAT_AFTER_POINT:
@@ -92,6 +106,8 @@ string Lexeme::get_value(){
     case TYPE_ARRAY:
     case TYPE_COMMENT:
     case TYPE_IDENTIFICATE:
+    case TYPE_KEY_WORD:
+    case TYPE_FUNCTION_NAME:
     default:
       return str;
   }

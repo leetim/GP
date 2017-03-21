@@ -22,6 +22,9 @@ Searcher::~Searcher(){
 
 Lexeme Searcher::next(){
   current = get_next();
+  while (current.get_value() == "Spaces"){
+    current = get_next();
+  }
   return current;
 }
 

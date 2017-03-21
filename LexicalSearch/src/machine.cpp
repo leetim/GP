@@ -169,7 +169,7 @@ PCondition get_identificate(){
 PCondition get_identificate_type(){
   PCondition temp = get_A();
   temp->add_child(get_Aa0());
-  temp->set_type(TYPE_IDENTIFICATE);
+  temp->set_type(TYPE_TYPE_NAME);
   return temp;
 }
 
@@ -254,7 +254,7 @@ void get_operator(PCondition start){
     "&&",
     "||",
     "^",
-    ";",
+    // ";",
     ",",
     ":",
     "+=",
