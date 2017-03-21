@@ -42,7 +42,7 @@ Lexeme Searcher::get_next(){
     next_line();
     return e.last_lexeme;
   }
-  if (t.get_type() == TYPE_FLOAT_POINT){
+  if (t.get_type() == LT_FLOAT_POINT){
     string s = t.get_str();
     unsigned int k = 0;
     for (unsigned int i = 0; i < s.size(); i++){
@@ -59,8 +59,8 @@ Lexeme Searcher::get_next(){
       s.pop_back();
     }
     // cout << "POP " << lim << " " << string(lim, '.') << endl;
-    Lexeme integer(s, t.get_row(), t.get_col(), TYPE_INT);
-    Lexeme point(string(lim, '.'), t.get_row(), t.get_col() + k, TYPE_OPERATOR);
+    Lexeme integer(s, t.get_row(), t.get_col(), LT_INT);
+    Lexeme point(string(lim, '.'), t.get_row(), t.get_col() + k, LT_OPERATOR);
     q.push(point);
     return integer;
   }

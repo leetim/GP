@@ -149,7 +149,7 @@ PCondition get_union(char frst, char sec){
   vector<char> v;
   v.push_back(frst);
   v.push_back(sec);
-  return get_union(v, TYPE_NONE);
+  return get_union(v, LT_NONE);
 }
 
 PCondition get_variable(LexemeType type, char c){
@@ -162,32 +162,32 @@ PCondition get_variable(LexemeType type, char c){
 PCondition get_identificate(){
   PCondition temp = get_a();
   temp->add_child(get_Aa0());
-  temp->set_type(TYPE_IDENTIFICATE);
+  temp->set_type(LT_IDENTIFICATE);
   return temp;
 }
 
 PCondition get_identificate_type(){
   PCondition temp = get_A();
   temp->add_child(get_Aa0());
-  temp->set_type(TYPE_TYPE_NAME);
+  temp->set_type(LT_TYPE_NAME);
   return temp;
 }
 
 PCondition get_leteral(){
   // PCondition none_other(new Condition_unity(get_A(), get_a()));
-  //   none_other->set_type(TYPE_NONE);
+  //   none_other->set_type(LT_NONE);
   PCondition temp = get_0();
-    temp->set_type(TYPE_INT);
+    temp->set_type(LT_INT);
   PCondition point = get_scalar('.');
-    point->set_type(TYPE_FLOAT_POINT);
+    point->set_type(LT_FLOAT_POINT);
   PCondition point1 = get_scalar('.');
-    point1->set_type(TYPE_FLOAT_POINT);
+    point1->set_type(LT_FLOAT_POINT);
   PCondition temp1 = get_0();
-    temp1->set_type(TYPE_FLOAT);
+    temp1->set_type(LT_FLOAT);
   PCondition none_e(new Condition_unity(get_scalar('E'), get_scalar('e')));
-    none_e->set_type(TYPE_NONE);
+    none_e->set_type(LT_NONE);
   PCondition temp2 = get_0();
-    temp2->set_type(TYPE_FLOAT);
+    temp2->set_type(LT_FLOAT);
   temp->add_child(point)->add_child(temp1)->add_child(none_e)->add_child(temp2);
   point->add_child(point1);
   point1->add_child(point1);
@@ -205,14 +205,14 @@ PCondition get_leteral_str(){
   temp2->add_child(temp2);
   temp1->add_child(temp2)->add_child(get_scalar('\''));
   temp1->add_child(get_scalar('\''));
-  temp1->set_type(TYPE_STRING);
+  temp1->set_type(LT_STRING);
   return temp1;
 }
 
 PCondition get_active_str(){
   PCondition temp = get_scalar('\"');
   PCondition finish = get_scalar('\"');
-  finish->set_type(TYPE_ACTIVE_STRING);
+  finish->set_type(LT_ACTIVE_STRING);
   PCondition body = get_negative(get_union('\"', '\\'));
   body->add_child(body);
   PCondition escape = get_scalar('\\');
@@ -232,7 +232,7 @@ PCondition get_spaces(){
     '\t',
     '\n'
   };
-  PCondition temp = get_union(a, TYPE_SPACE);
+  PCondition temp = get_union(a, LT_SPACE);
   temp->add_child(temp);
   return temp;
 }
@@ -270,7 +270,7 @@ void get_operator(PCondition start){
       PCondition temp = cur->get_child(c);
       if (temp == NULL){
         cur = cur->add_child(get_scalar(c));
-        cur->set_type(TYPE_OPERATOR);
+        cur->set_type(LT_OPERATOR);
       }
       else{
         cur = temp;
@@ -288,7 +288,7 @@ PCondition get_separator(){
     '{',
     '}'
   };
-  return get_union(a, TYPE_SEPARATOR);
+  return get_union(a, LT_SEPARATOR);
 }
 
 PCondition get_comment(){
@@ -296,7 +296,7 @@ PCondition get_comment(){
   PCondition tail = get_scalar('\n');
   PCondition body = get_not_scalar('\n');
   body->add_child(body);
-  tail->set_type(TYPE_COMMENT);
+  tail->set_type(LT_COMMENT);
   head->add_child(body)->add_child(tail);
   head->add_child(tail);
   return head;
@@ -304,7 +304,7 @@ PCondition get_comment(){
 
 PCondition get_eof(){
   PCondition temp = get_scalar((char)3);
-  temp->set_type(TYPE_EOF);
+  temp->set_type(LT_EOF);
   return temp;
 }
 
@@ -314,8 +314,8 @@ PCondition get_eof(){
 void Machine::learn(){
   start = PCondition(new Condition_unity);
   cur = start;
-  start->add_child(get_variable(TYPE_VAR, '$'));
-  start->add_child(get_variable(TYPE_ARRAY, '@'));
+  start->add_child(get_variable(LT_VAR, '$'));
+  start->add_child(get_variable(LT_ARRAY, '@'));
   start->add_child(get_identificate());
   start->add_child(get_identificate_type());
   start->add_child(get_leteral());
@@ -353,11 +353,11 @@ Lexeme Machine::next(){
   if ((unsigned int)cur_ind == current_line.size()){
     throw Errors::End_of_line(l);
   }
-  // cout << cur->get_type() << " " << TYPE_EOF << endl;
+  // cout << cur->get_type() << " " << LT_EOF << endl;
   switch(l.get_type()){
-    case TYPE_EOF:
+    case LT_EOF:
       throw Errors::End_of_file(l);
-    case TYPE_NONE:
+    case LT_NONE:
       throw Errors::Unknown_lexeme(l);
     default:
       return l;

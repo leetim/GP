@@ -8,22 +8,22 @@
 using namespace std;
 
 static map<LexemeType, string> types = {
-  {TYPE_NONE ,"NONE"},
-  {TYPE_IDENTIFICATE ,"IDENTIFICATOR"},
-  {TYPE_SEPARATOR ,"SEPARATOR"},
-  {TYPE_OPERATOR ,"OPERATOR"},
-  {TYPE_SPACE ,"SPACE"},
-  {TYPE_DIRECT ,"DIRECTIVE"},
-  {TYPE_EOF ,"EOF"},
-  {TYPE_FLOAT ,"LETERAL_FLOAT"},
-  {TYPE_INT ,"LETERAL_INTEGER"},
-  {TYPE_STRING ,"LETERAL_STRING"},
-  {TYPE_VAR ,"VARIABLE"},
-  {TYPE_ARRAY ,"ARRAY"},
-  {TYPE_COMMENT ,"COMMENT"},
-  {TYPE_KEY_WORD ,"KEY_WORD"},
-  {TYPE_FUNCTION_NAME ,"FUNCTION_NAME"},
-  {TYPE_TYPE_NAME ,"TYPE_NAME"},
+  {LT_NONE ,"NONE"},
+  {LT_IDENTIFICATE ,"IDENTIFICATOR"},
+  {LT_SEPARATOR ,"SEPARATOR"},
+  {LT_OPERATOR ,"OPERATOR"},
+  {LT_SPACE ,"SPACE"},
+  {LT_DIRECT ,"DIRECTIVE"},
+  {LT_EOF ,"EOF"},
+  {LT_FLOAT ,"LETERAL_FLOAT"},
+  {LT_INT ,"LETERAL_INTEGER"},
+  {LT_STRING ,"LETERAL_STRING"},
+  {LT_VAR ,"VARIABLE"},
+  {LT_ARRAY ,"ARRAY"},
+  {LT_COMMENT ,"COMMENT"},
+  {LT_KEY_WORD ,"KEY_WORD"},
+  {LT_FUNCTION_NAME ,"FUNCTION_NAME"},
+  {LT_TYPE_NAME ,"TYPE_NAME"},
 };
 
 set<string> key_words = {
@@ -63,12 +63,12 @@ int Lexeme::get_col(){
 }
 
 int Lexeme::get_type(){
-  if (type == TYPE_IDENTIFICATE){
+  if (type == LT_IDENTIFICATE){
     if (key_words.find(str) != key_words.end()){
-      type = TYPE_KEY_WORD;
+      type = LT_KEY_WORD;
     }
     else{
-      type = TYPE_FUNCTION_NAME;
+      type = LT_FUNCTION_NAME;
     }
   }
   return type;
@@ -81,33 +81,33 @@ string Lexeme::get_type_str(){
 string Lexeme::get_value(){
   stringstream ss;
   switch (get_type()){
-    case TYPE_NONE:
+    case LT_NONE:
       throw Errors::Unknown_lexeme(*this);
-    case TYPE_FLOAT_AFTER_POINT:
+    case LT_FLOAT_AFTER_POINT:
       throw Errors::Unknown_lexeme(*this);
-    case TYPE_SPACE:
+    case LT_SPACE:
       for (unsigned int i = 0; i < str.size(); i++){
         if (str[i] == '\n'){
           return "NewLine\n";
         }
       }
       return "Spaces";
-    case TYPE_DIRECT:
-    case TYPE_EOF:
+    case LT_DIRECT:
+    case LT_EOF:
       return "EndOfFile";
-    case TYPE_LETERAL:
-      // type = TYPE_INT;
-    case TYPE_STRING:
-    case TYPE_FLOAT:
-    case TYPE_INT:
-    case TYPE_SEPARATOR:
-    case TYPE_OPERATOR:
-    case TYPE_VAR:
-    case TYPE_ARRAY:
-    case TYPE_COMMENT:
-    case TYPE_IDENTIFICATE:
-    case TYPE_KEY_WORD:
-    case TYPE_FUNCTION_NAME:
+    case LT_LETERAL:
+      // type = LT_INT;
+    case LT_STRING:
+    case LT_FLOAT:
+    case LT_INT:
+    case LT_SEPARATOR:
+    case LT_OPERATOR:
+    case LT_VAR:
+    case LT_ARRAY:
+    case LT_COMMENT:
+    case LT_IDENTIFICATE:
+    case LT_KEY_WORD:
+    case LT_FUNCTION_NAME:
     default:
       return str;
   }
