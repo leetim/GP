@@ -1,10 +1,11 @@
 #pragma once
 
-#include <memory.h>
 #include <defs.h>
+#include <string>
+#include <sstream>
+#include <memory>
 
 class Nocle;
-typedef std::shared_ptr<Nocle> PNocle;
 enum NocleType{
   NT_BASE,
   NT_TERMINATE,
@@ -23,16 +24,21 @@ public:
   Nocle(Lexeme l): lexeme(l){};
   void set_lexeme(Lexeme lex);
   Lexeme get_lexeme();
+  std::string get_str();
   virtual NocleType get_type();
+  virtual void get_str(std::stringstream& ss, int depth = 0);
 private:
   Lexeme lexeme;
 };
+// typedef std::shared_ptr<Nocle> PNocle;
+typedef std::shared_ptr<Nocle> PNocle;
 
 class NocleTerminate: public Nocle{
 public:
   NocleTerminate(): Nocle(){};
   NocleTerminate(Lexeme lex): Nocle(lex){};
   NocleType get_type();
+  virtual void get_str(std::stringstream& ss, int depth = 0);
 };
 
 class NocleUnary: public Nocle{
@@ -41,6 +47,7 @@ public:
   NocleUnary(Lexeme lex, PNocle ch = NULL): Nocle(lex), child(ch){};
   void set_child(PNocle ch);
   PNocle get_child();
+  void get_str(std::stringstream& ss, int depth = 0);
 private:
   PNocle child;
 };
@@ -53,6 +60,7 @@ public:
   PNocle get_child1();
   void set_child2(PNocle child);
   PNocle get_child2();
+  void get_str(std::stringstream& ss, int depth = 0);
 private:
   PNocle child1;
   PNocle child2;

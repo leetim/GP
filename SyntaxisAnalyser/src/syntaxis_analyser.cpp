@@ -1,44 +1,45 @@
 #include <syntaxis_analyser.h>
-#include <map>
+#include <iostream>
 
 using namespace std;
 
-map<string, int> operation_unary_postfix = {
+int SyntaxisAnalyser::max_priority = 13;
+map<string, int> SyntaxisAnalyser::operation_unary_postfix = {
   {"()", 1},
   {"[]", 1},
   {"++", 1},
   {"--", 1}
 };
-map<string, int> operation_unary_prefix = {
+map<string, int> SyntaxisAnalyser::operation_unary_prefix = {
   {"++", 2},
   {"--", 2},
   {"+", 2},
   {"-", 2},
   {"!", 2}
 };
-map<string, int> operation_binary_left = {
-  {".", 1},
-  {"*", 5},
-  {"/", 5},
-  {"%", 5},
-  {"+", 6},
-  {"-", 6},
-  {"<<", 7},
-  {">>", 7},
+map<string, int> SyntaxisAnalyser::operation_binary_left = {
+  {".", 13},
+  {"*", 12},
+  {"/", 11},
+  {"%", 11},
+  {"+", 10},
+  {"-", 10},
+  {"<<", 9},
+  {">>", 9},
   {"<", 8},
   {"<=", 8},
   {">", 8},
   {">=", 8},
-  {"==", 9},
-  {"!=", 9},
-  {"&", 10},
-  {"^", 11},
-  {"|", 12},
-  {"&&", 13},
-  {"||", 14},
-  {",", 16}
+  {"==", 7},
+  {"!=", 7},
+  {"&", 6},
+  {"^", 5},
+  {"|", 4},
+  {"&&", 3},
+  {"||", 2}
+  // {",", 1}
 };
-map<string, int> operation_binary_right = {
+map<string, int> SyntaxisAnalyser::operation_binary_right = {
   {"=", 15},
   {"+=", 15},
   {"-=", 15},
@@ -50,66 +51,83 @@ map<string, int> operation_binary_right = {
   {"^=", 15}
 };
 
-bool is_terminal(Lexeme l){
-  switch(l.get_type()){
-    case TYPE_VAR:
-    case TYPE_IDENTIFICATE:
-    case TYPE_ARRAY:
-    case TYPE_INT:
-    case TYPE_FLOAT:
-    case TYPE_STRING:
-      return true;
-  }
-  return false;
-}
-
 PNocle SyntaxisAnalyser::get_tree(){
   searcher.next();
-  return parse_expr(0);
+  return parse_expr(1);
 }
 
-PNocle SyntaxisAnalyser::parse_expr(int prioryty){
+PNocle SyntaxisAnalyser::parse_expr(int priority){
   if (priority > 16){
-    return terminal_found();
+    return parse_factor();
   }
   PNocle temp = parse_expr(priority + 1);
-  while(check_priority(temp, )){
-    Lexeme next = searcher.next();
+  Lexeme next = searcher.get_current();
+  while(check_priority(next, priority)){
+    searcher.next();
     PNocle right = parse_expr(priority + 1);
-    temp = PNocle(new )
+    temp = PNocle(new NocleBinaryLeft(next, temp, right));
+    next = searcher.get_current();
   }
+  return temp;
 }
 
-PNocle SyntaxisAnalyser::terminal_found(PNocle& tree){
+PNocle SyntaxisAnalyser::parse_factor(){
   Lexeme cur = searcher.get_current();
-  if (tree == NULL){
+  Lexeme next = searcher.next();
+
+  // if (next.get_str() == "(" && cur.get_type() == LT_OPERATOR){
+  //   searcher.next();
+  //   while (cur.get_str() != ")"){
+  //     PNocle temp = parse_expr(1);
+  //     searcher.next();
+  //   }
+  // }
+  if (operation_unary_prefix[cur.get_str()]){
+    return PNocle(new NocleUnaryPrefix(cur, parse_factor()));
+  }
+  if (cur.get_str() == "("){
+    PNocle temp = parse_expr(1);
+    if (searcher.get_current().get_str() != ")"){
+      throw Errors::Illegal_expression(cur); //Нужна адекватная ошибка
+    }
+    searcher.next();
+    return temp;
+  }
+  if (cur.is_identificator()){
+    return parse_identificator();
+  }
+  if (cur.is_leteral()){
+    cout << "HI2 " << endl;
     return PNocle(new NocleTerminate(cur));
   }
-  switch(tree->get_type()){
-    case NT_BINARY_RIGHT:
-      PNocleBinaryRight nbr(tree);
-      nbr->set_child2(PNocle(new NocleTerminate(cur)));
-    case NT_UNARY_PREFIX:
-      PNocleUnaryPrefix nu(tree);
-      nu->set_child(PNocle(new NocleTerminate(cur)));
-    default:
-      throw 11;
-  }
-  return tree;
 
+  cout << next.get_str() << " " << cur.get_str() << endl;
+  throw Errors::Illegal_expression(cur); //Нужна адекватная ошибка
+  // return NULL;
 }
 
-PNocle SyntaxisAnalyser::separator_found(PNocle& tree){
+PNocle SyntaxisAnalyser::parse_identificator(){
   Lexeme cur = searcher.get_current();
-  if (cur.get_str() == "("){
-
+  Lexeme next = searcher.next();
+  if (next.get_str() == "["){
+    searcher.next();
+    PNocle temp = parse_expr();
+    require_lexeme("]");
+    searcher.next();
+    return PNocle(new NocleBinaryRight(next, temp))
   }
+  return PNocle(new NocleTerminate(cur));
 }
 
-PNocle SyntaxisAnalyser::unary_operator_prefix(PNocle& tree){
-
+bool SyntaxisAnalyser::require_lexeme(string t){
+  if (searcher.get_current().get_value() == t)
+    return true;
+  throw Errors::ClosingParenthesisNotFound(searcher.get_current());
 }
 
-PNocle SyntaxisAnalyser::not_terminal_found(PNocle& tree){
 
+bool SyntaxisAnalyser::check_priority(Lexeme lex, int priority){
+  int k = operation_binary_left[lex.get_value()];
+  cout << "CHECKING " << k << " " << lex.get_value() << " " << searcher.get_current().get_str() << endl;
+  return k == priority;
 }

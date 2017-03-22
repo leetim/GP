@@ -1,4 +1,5 @@
 #include <syntax_tree.h>
+#include <iostream>
 
 using namespace std;
 
@@ -17,11 +18,29 @@ NocleType Nocle::get_type(){
   return NT_BASE;
 }
 
+string Nocle::get_str(){
+  stringstream ss;
+  get_str(ss, 0);
+  return ss.str();
+}
+
+void Nocle::get_str(stringstream& ss, int depth){
+  cout << "NNYA" << endl;
+  // return "";
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 //NocleTerminate
 
 NocleType NocleTerminate::get_type(){
   return NT_TERMINATE;
+}
+
+void NocleTerminate::get_str(stringstream& ss, int depth){
+  // cout << "NYA" << endl;
+  ss << string(depth*8, '_') << get_lexeme().get_value() << "\n";
+  // return get_lexeme().get_value();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -33,6 +52,12 @@ void NocleUnary::set_child(PNocle ch){
 
 PNocle NocleUnary::get_child(){
   return child;
+}
+
+void NocleUnary::get_str(stringstream& ss, int depth){
+  ss << string(depth*8, '_') << get_lexeme().get_value() << "\n";
+  child->get_str(ss, depth + 1);
+  // return get_lexeme().get_value();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -54,37 +79,44 @@ PNocle NocleBinary::get_child2(){
   return child2;
 }
 
+void NocleBinary::get_str(stringstream& ss, int depth){
+  child1->get_str(ss, depth + 1);
+  ss << string(depth*8, '_') << get_lexeme().get_value() << "\n";
+  child2->get_str(ss, depth + 1);
+  // return get_lexeme().get_value();
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //NocleExpression
 
-void NocleExpression::get_type(){
+NocleType NocleExpression::get_type(){
   return NT_EXPR;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 //NocleUnaryPrefix
 
-void NocleUnaryPrefix::get_type(){
+NocleType NocleUnaryPrefix::get_type(){
   return NT_UNARY_PREFIX;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 //NocleUnaryPostfix
 
-void NocleUnaryPostfix::get_type(){
+NocleType NocleUnaryPostfix::get_type(){
   return NT_UNARY_POSTFIX;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 //NocleBinaryLeft
 
-void NocleBinaryLeft::get_type(){
+NocleType NocleBinaryLeft::get_type(){
   return NT_BINARY_LEFT;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 //NocleBinaryRight
 
-void NocleBinaryRight::get_type(){
+NocleType NocleBinaryRight::get_type(){
   return NT_BINARY_RIGHT;
 }
