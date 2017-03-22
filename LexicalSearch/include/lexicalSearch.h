@@ -15,8 +15,8 @@ public:
   ~Searcher();
   Lexeme next();
   Lexeme get_current();
-  void learn();
 private:
+  void learn();
   void next_line();
   void refresh_buffer();
   Lexeme get_next();

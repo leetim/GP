@@ -13,6 +13,7 @@ Searcher::Searcher(string file_name){
   input_f.seekg (0, input_f.beg);
   buffer = new char[buf_size];
   current_ind = 0;
+  learn();
 }
 
 Searcher::~Searcher(){

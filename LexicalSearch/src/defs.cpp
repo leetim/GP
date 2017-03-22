@@ -113,6 +113,29 @@ string Lexeme::get_value(){
   }
 }
 
+bool Lexeme::is_leteral(){
+  switch(type){
+    case LT_INT:
+    case LT_FLOAT:
+    case LT_STRING:
+      return true;
+    default:
+      return false;
+  }
+}
+
+bool Lexeme::is_identificator(){
+  switch(type){
+    case LT_VAR:
+    case LT_ARRAY:
+    case LT_FUNCTION_NAME:
+      return true;
+    default:
+      return false;
+  }
+}
+
+
 bool Lexeme::operator==(const LexemeType& ltype) const{
   return type == ltype;
 }

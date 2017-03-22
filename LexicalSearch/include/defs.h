@@ -46,6 +46,8 @@ public:
   int get_type();
   std::string get_type_str();
   std::string get_value();
+  bool is_leteral();
+  bool is_identificator();
   void print();
   bool operator==(const LexemeType&) const;
 private:
@@ -82,4 +84,17 @@ namespace Errors{
     Unknown_lexeme(Lexeme l): lex(l){};
     Lexeme lex;
   };
+
+  struct Illegal_expression{
+    Illegal_expression(){};
+    Illegal_expression(Lexeme l): lex(l){};
+    Lexeme lex;
+  };
+
+  struct ClosingParenthesisNotFound{
+    ClosingParenthesisNotFound(){};
+    ClosingParenthesisNotFound(Lexeme l): lex(l){};
+    Lexeme lex;
+  };
+
 };
