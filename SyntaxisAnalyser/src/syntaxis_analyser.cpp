@@ -73,15 +73,15 @@ PNocle SyntaxisAnalyser::parse_expr(int priority){
 
 PNocle SyntaxisAnalyser::parse_factor(){
   Lexeme cur = searcher.get_current();
+  if (cur.is_identificator()){
+    return parse_identificator();
+  }
+
   Lexeme next = searcher.next();
 
-  // if (next.get_str() == "(" && cur.get_type() == LT_OPERATOR){
-  //   searcher.next();
-  //   while (cur.get_str() != ")"){
-  //     PNocle temp = parse_expr(1);
-  //     searcher.next();
-  //   }
-  // }
+  if (cur.is_leteral()){
+    return PNocle(new NocleTerminate(cur));
+  }
   if (operation_unary_prefix[cur.get_str()]){
     return PNocle(new NocleUnaryPrefix(cur, parse_factor()));
   }
@@ -93,13 +93,14 @@ PNocle SyntaxisAnalyser::parse_factor(){
     searcher.next();
     return temp;
   }
-  if (cur.is_identificator()){
-    return parse_identificator();
-  }
-  if (cur.is_leteral()){
-    cout << "HI2 " << endl;
-    return PNocle(new NocleTerminate(cur));
-  }
+
+  // if (next.get_str() == "(" && cur.get_type() == LT_OPERATOR){
+  //   searcher.next();
+  //   while (cur.get_str() != ")"){
+  //     PNocle temp = parse_expr(1);
+  //     searcher.next();
+  //   }
+  // }
 
   cout << next.get_str() << " " << cur.get_str() << endl;
   throw Errors::Illegal_expression(cur); //Нужна адекватная ошибка
@@ -109,14 +110,23 @@ PNocle SyntaxisAnalyser::parse_factor(){
 PNocle SyntaxisAnalyser::parse_identificator(){
   Lexeme cur = searcher.get_current();
   Lexeme next = searcher.next();
+  PNocle ident(new NocleTerminate(cur));
+  cout << "REQ " << cur.get_str() << endl;
   if (next.get_str() == "["){
     searcher.next();
     PNocle temp = parse_expr();
     require_lexeme("]");
     searcher.next();
-    return PNocle(new NocleBinaryRight(next, temp))
+    return PNocle(new NocleBinaryRight(next, ident, temp));
   }
-  return PNocle(new NocleTerminate(cur));
+  if (next.get_str() == "("){
+    searcher.next();
+    PNocle temp = parse_expr();
+    require_lexeme(")");
+    searcher.next();
+    return PNocle(new NocleBinaryRight(next, ident, temp));
+  }
+  return ident;
 }
 
 bool SyntaxisAnalyser::require_lexeme(string t){
@@ -128,6 +138,6 @@ bool SyntaxisAnalyser::require_lexeme(string t){
 
 bool SyntaxisAnalyser::check_priority(Lexeme lex, int priority){
   int k = operation_binary_left[lex.get_value()];
-  cout << "CHECKING " << k << " " << lex.get_value() << " " << searcher.get_current().get_str() << endl;
+  // cout << "CHECKING " << k << " " << lex.get_value() << " " << searcher.get_current().get_str() << endl;
   return k == priority;
 }

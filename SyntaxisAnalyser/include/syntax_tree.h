@@ -106,11 +106,3 @@ typedef std::shared_ptr<NocleUnaryPrefix> PNocleUnaryPrefix;
 typedef std::shared_ptr<NocleUnaryPostfix> PNocleUnaryPostfix;
 typedef std::shared_ptr<NocleBinaryLeft> PNocleBinaryLeft;
 typedef std::shared_ptr<NocleBinaryRight> PNocleBinaryRight;
-
-// class SyntaxBinary: public SyntaxTree{
-//
-// };
-//
-// class SyntaxUnary: public SyntaxTree{
-//
-// };

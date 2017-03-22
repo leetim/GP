@@ -25,7 +25,7 @@ string Nocle::get_str(){
 }
 
 void Nocle::get_str(stringstream& ss, int depth){
-  cout << "NNYA" << endl;
+  // cout << "NNYA" << endl;
   // return "";
 }
 
