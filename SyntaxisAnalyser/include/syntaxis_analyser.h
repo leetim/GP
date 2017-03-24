@@ -3,6 +3,7 @@
 #include <lexicalSearch.h>
 #include <syntax_tree.h>
 #include <map>
+#include <iostream>
 
 class SyntaxisAnalyser{
 public:

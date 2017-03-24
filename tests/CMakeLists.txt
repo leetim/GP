@@ -17,9 +17,12 @@ include_directories(./gtestInclude)
 set(GTEST_LINKS gtest gtest_main gmock gmock_main)
 
 #Исходники тестов и их линковка
-add_executable(test1 test.cpp)
-target_link_libraries(test1 gtest gtest_main gmock gmock_main lexicalSearch)
+add_executable(lexical_test lexical_test.cpp)
+add_executable(syntax_test syntax_test.cpp)
+target_link_libraries(lexical_test gtest gtest_main gmock gmock_main lexicalSearch)
+target_link_libraries(syntax_test gtest gtest_main gmock gmock_main lexicalSearch syntaxisAnalyser)
 # target_link_libraries(test1 gtest gtest_main gmock gmock_main lexicalSearch)
 
 #Добавление тестов
-add_test(NAME Alloc_Test COMMAND test1)
+add_test(NAME lexicalSearch_test COMMAND lexical_test)
+add_test(NAME syntaxAnalysis_test COMMAND syntax_test)

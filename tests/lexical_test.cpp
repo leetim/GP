@@ -66,7 +66,7 @@ protected:
 		}
 		s = new Searcher(GP_DIR + file + GP_FILE);
 		// cout << 123 << endl;
-		s->learn();
+		// s->learn();
 		input.open(OUT_DIR + file + OUT_FILE);
 	}
 
@@ -74,22 +74,11 @@ protected:
 		preparation(file);
 		while (true){
 			TestLexeme lt(input);
-			if (lt.type == "EOF"){
-				try{
-					Lexeme l = s->next();
-				}
-				catch(Errors::End_of_file e){
-					// cout << "HI" << endl;
-					comp(e.last_lexeme, lt);
-					// return;
-				}
-				break;
-			}
 			Lexeme l = s->next();
-			if (l.get_type_str() == "EOF"){
+			comp(l, lt);
+			if (l.get_type() == LT_EOF){
 				break;
 			}
-			comp(l, lt);
 		}
 	}
 

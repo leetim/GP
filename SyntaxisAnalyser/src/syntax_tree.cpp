@@ -21,10 +21,12 @@ NocleType Nocle::get_type(){
 string Nocle::get_str(){
   stringstream ss;
   get_str(ss, 0);
+  // ss << "\n";
   return ss.str();
 }
 
 void Nocle::get_str(stringstream& ss, int depth){
+  ss << "\n";
   // cout << "NNYA" << endl;
   // return "";
 }

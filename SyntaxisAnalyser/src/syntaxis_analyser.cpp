@@ -73,6 +73,7 @@ PNocle SyntaxisAnalyser::parse_expr(int priority){
 
 PNocle SyntaxisAnalyser::parse_factor(){
   Lexeme cur = searcher.get_current();
+  // cout << cur.get_str() << endl;
   if (cur.is_identificator()){
     return parse_identificator();
   }
@@ -93,16 +94,10 @@ PNocle SyntaxisAnalyser::parse_factor(){
     searcher.next();
     return temp;
   }
-
-  // if (next.get_str() == "(" && cur.get_type() == LT_OPERATOR){
-  //   searcher.next();
-  //   while (cur.get_str() != ")"){
-  //     PNocle temp = parse_expr(1);
-  //     searcher.next();
-  //   }
-  // }
-
-  cout << next.get_str() << " " << cur.get_str() << endl;
+  // cout << next.get_str() << " " << cur.get_str() << endl;
+  if (cur == LT_EOF){
+    return PNocle(new Nocle(cur));
+  }
   throw Errors::Illegal_expression(cur); //Нужна адекватная ошибка
   // return NULL;
 }
@@ -111,7 +106,7 @@ PNocle SyntaxisAnalyser::parse_identificator(){
   Lexeme cur = searcher.get_current();
   Lexeme next = searcher.next();
   PNocle ident(new NocleTerminate(cur));
-  cout << "REQ " << cur.get_str() << endl;
+  // cout << "REQ " << cur.get_str() << endl;
   if (next.get_str() == "["){
     searcher.next();
     PNocle temp = parse_expr();

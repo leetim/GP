@@ -7,9 +7,10 @@ using namespace std;
 
 Searcher::Searcher(string file_name){
   input_f.open(file_name);
-
+  // cout << input_f.is_open() << endl;
   input_f.seekg (0, input_f.end);
   buf_size = input_f.tellg();
+  // std::cout << buf_size << std::endl;
   input_f.seekg (0, input_f.beg);
   buffer = new char[buf_size];
   current_ind = 0;

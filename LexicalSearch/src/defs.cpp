@@ -129,6 +129,7 @@ bool Lexeme::is_identificator(){
     case LT_VAR:
     case LT_ARRAY:
     case LT_FUNCTION_NAME:
+    case LT_TYPE_NAME:
       return true;
     default:
       return false;

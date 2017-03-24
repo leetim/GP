@@ -355,8 +355,8 @@ Lexeme Machine::next(){
   }
   // cout << cur->get_type() << " " << LT_EOF << endl;
   switch(l.get_type()){
-    case LT_EOF:
-      throw Errors::End_of_file(l);
+    // case LT_EOF:
+    //   throw Errors::End_of_file(l);
     case LT_NONE:
       throw Errors::Unknown_lexeme(l);
     default:
