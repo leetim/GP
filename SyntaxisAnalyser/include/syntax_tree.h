@@ -66,11 +66,17 @@ private:
   PNocle child2;
 };
 
-class NocleExpression: public NocleUnary{
+class NocleMulty: public Nocle{
 public:
-  NocleExpression(): NocleUnary(){};
-  NocleExpression(Lexeme lex, PNocle ch = NULL): NocleUnary(lex, ch){};
+  NocleMulty(): Nocle(){};
+  NocleMulty(Lexeme lex): Nocle(lex){};
+  void add_child(PNocle ch);
+  PNocle get_child(int ind);
+  PNocle operator[](int ind);
   NocleType get_type();
+  void get_str(std::stringstream& ss, int depth = 0);
+private:
+  std::vector<PNocle> children;
 };
 
 class NocleUnaryPrefix: public NocleUnary{
@@ -101,7 +107,7 @@ public:
   NocleType get_type();
 };
 
-typedef std::shared_ptr<NocleExpression> PNocleExpression;
+typedef std::shared_ptr<NocleMulty> PNocleMulty;
 typedef std::shared_ptr<NocleUnaryPrefix> PNocleUnaryPrefix;
 typedef std::shared_ptr<NocleUnaryPostfix> PNocleUnaryPostfix;
 typedef std::shared_ptr<NocleBinaryLeft> PNocleBinaryLeft;

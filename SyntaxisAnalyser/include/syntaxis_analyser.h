@@ -14,7 +14,8 @@ private:
   PNocle parse_expr(int prioryty = 1);
   PNocle parse_factor();
   PNocle parse_identificator();
-  bool require_lexeme(std::string t);
+  PNocle parse_function(PNocle ident, LexemeType finish);
+  bool require_lexeme(LexemeType lt);
   bool check_priority(Lexeme lex, int priority);
   static int max_priority;
   static std::map<std::string, int> operation_unary_postfix;

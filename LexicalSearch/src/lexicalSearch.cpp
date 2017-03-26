@@ -30,6 +30,11 @@ Lexeme Searcher::next(){
   return current;
 }
 
+Lexeme Searcher::next_with_spaces(){
+  current = get_next();
+  return current;
+}
+
 Lexeme Searcher::get_next(){
   Lexeme t;
   if (!q.empty()){

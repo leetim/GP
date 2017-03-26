@@ -24,7 +24,13 @@ enum LexemeType{
   LT_ACTIVE_STRING,
   LT_KEY_WORD,
   LT_FUNCTION_NAME,
-  LT_TYPE_NAME
+  LT_TYPE_NAME,
+  LT_NEW_LINE,
+  LT_OP,//Открывающая круглая скобка
+  LT_CP,
+  LT_OSB,//Открывающая квадратная скобка
+  LT_CSB,
+  // LT_
 };
 
 // std::vector<std::string> types;
@@ -51,6 +57,7 @@ public:
   void print();
   bool operator==(const LexemeType&) const;
 private:
+  void setting_separator();
   std::string str;
   int row;
   int col;

@@ -87,70 +87,70 @@ TEST_F(SyntaxisTest, 05_Simple_func_name){
 TEST_F(SyntaxisTest, 06_Symple_type_name){
 	testingFile(files[5]);
 }
-//
-// TEST_F(SyntaxisTest, 07_Operators){
-// 	testingFile(files[6]);
-// }
-//
-// TEST_F(SyntaxisTest, 08_Operators){
-// 	testingFile(files[7]);
-// }
-//
-// TEST_F(SyntaxisTest, 09_Operators){
-// 	testingFile(files[8]);
-// }
-//
-// TEST_F(SyntaxisTest, 10_More_identificators){
-// 	testingFile(files[9]);
-// }
-//
-// TEST_F(SyntaxisTest, 11_More_variables){
-// 	testingFile(files[10]);
-// }
-//
-// TEST_F(SyntaxisTest, 12_More_arrays){
-// 	testingFile(files[11]);
-// }
-//
-// TEST_F(SyntaxisTest, 13_Comment){
-// 	testingFile(files[12]);
-// }
-//
-// TEST_F(SyntaxisTest, 14_Separators){
-// 	testingFile(files[13]);
-// }
-//
-// TEST_F(SyntaxisTest, 15_Identificators){
-// 	testingFile(files[14]);
-// }
-//
-// TEST_F(SyntaxisTest, 16_Integers){
-// 	testingFile(files[15]);
-// }
-//
-// TEST_F(SyntaxisTest, 17_Float){
-// 	testingFile(files[16]);
-// }
-//
-// TEST_F(SyntaxisTest, 18_Passive_strs){
-// 	testingFile(files[17]);
-// }
-//
-// TEST_F(SyntaxisTest, 19_Comments){
-// 	testingFile(files[18]);
-// }
-//
-// TEST_F(SyntaxisTest, 20_operators_points1){
-// 	testingFile(files[19]);
-// }
-//
-// TEST_F(SyntaxisTest, 21_operators_points2){
-// 	testingFile(files[20]);
-// }
-//
-// TEST_F(SyntaxisTest, 22_operators_points_and_int){
-// 	testingFile(files[21]);
-// }
+
+TEST_F(SyntaxisTest, 07_operation_add_with_integers){
+	testingFile(files[6]);
+}
+
+TEST_F(SyntaxisTest, 08_operation_add_with_identificators){
+	testingFile(files[7]);
+}
+
+TEST_F(SyntaxisTest, 09_operation_two_sub){
+	testingFile(files[8]);
+}
+
+TEST_F(SyntaxisTest, 10_array_at){
+	testingFile(files[9]);
+}
+
+TEST_F(SyntaxisTest, 11_array_at_twice){
+	testingFile(files[10]);
+}
+
+TEST_F(SyntaxisTest, 12_function_one_argument){
+	testingFile(files[11]);
+}
+
+TEST_F(SyntaxisTest, 13_function_two_arguments){
+	testingFile(files[12]);
+}
+
+TEST_F(SyntaxisTest, 14_function_two_arguments_with_expr){
+	testingFile(files[13]);
+}
+
+TEST_F(SyntaxisTest, 15_function_one_argument_without_separators){
+	testingFile(files[14]);
+}
+
+TEST_F(SyntaxisTest, 16_function_two_argument_without_separators){
+	testingFile(files[15]);
+}
+
+TEST_F(SyntaxisTest, 17_function_two_argument_without_separators_with_expr){
+	testingFile(files[16]);
+}
+
+TEST_F(SyntaxisTest, 18_superposition_functions){
+	testingFile(files[17]);
+}
+
+TEST_F(SyntaxisTest, 19_adding_functions){
+	testingFile(files[18]);
+}
+
+TEST_F(SyntaxisTest, 20_mult_field_of_record_and_method){
+	testingFile(files[19]);
+}
+
+TEST_F(SyntaxisTest, 21_classic_example_with_priority){
+	testingFile(files[20]);
+}
+
+TEST_F(SyntaxisTest, 22_logic_and_binary_operation_priority){
+	testingFile(files[21]);
+}
 
 int main(int argc, char* argv[]){
 	::testing::InitGoogleTest(&argc, argv);

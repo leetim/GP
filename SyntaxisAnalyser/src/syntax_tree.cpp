@@ -41,7 +41,12 @@ NocleType NocleTerminate::get_type(){
 
 void NocleTerminate::get_str(stringstream& ss, int depth){
   // cout << "NYA" << endl;
-  ss << string(depth*8, '_') << get_lexeme().get_value() << "\n";
+  if (depth == 0){
+    ss << get_lexeme().get_value() << "\n";
+  }
+  else{
+    ss << string((depth - 1)*4, ' ') << "|___" << get_lexeme().get_value() << "\n";
+  }
   // return get_lexeme().get_value();
 }
 
@@ -82,16 +87,45 @@ PNocle NocleBinary::get_child2(){
 }
 
 void NocleBinary::get_str(stringstream& ss, int depth){
+  if (depth == 0){
+    ss << get_lexeme().get_value() << "\n";
+  }
+  else{
+    ss << string((depth - 1)*4, ' ') << "|___" << get_lexeme().get_value() << "\n";
+  }
   child1->get_str(ss, depth + 1);
-  ss << string(depth*8, '_') << get_lexeme().get_value() << "\n";
   child2->get_str(ss, depth + 1);
   // return get_lexeme().get_value();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-//NocleExpression
+//NocleMulty
 
-NocleType NocleExpression::get_type(){
+void NocleMulty::add_child(PNocle ch){
+  children.push_back(ch);
+}
+
+PNocle NocleMulty::get_child(int ind){
+  return children.at(ind);
+}
+
+PNocle NocleMulty::operator[](int ind){
+  return children.at(ind);
+}
+
+void NocleMulty::get_str(std::stringstream& ss, int depth){
+  if (depth == 0){
+    ss << get_lexeme().get_value() << "\n";
+  }
+  else{
+    ss << string((depth - 1)*4, ' ') << "|___" << get_lexeme().get_value() << "\n";
+  }
+  for (auto i = children.begin(); i != children.end(); i++){
+    (*i)->get_str(ss, depth + 1);
+  }
+}
+
+NocleType NocleMulty::get_type(){
   return NT_EXPR;
 }
 

@@ -13,6 +13,7 @@ static map<LexemeType, string> types = {
   {LT_SEPARATOR ,"SEPARATOR"},
   {LT_OPERATOR ,"OPERATOR"},
   {LT_SPACE ,"SPACE"},
+  {LT_NEW_LINE ,"SPACE"},
   {LT_DIRECT ,"DIRECTIVE"},
   {LT_EOF ,"EOF"},
   {LT_FLOAT ,"LETERAL_FLOAT"},
@@ -24,6 +25,10 @@ static map<LexemeType, string> types = {
   {LT_KEY_WORD ,"KEY_WORD"},
   {LT_FUNCTION_NAME ,"FUNCTION_NAME"},
   {LT_TYPE_NAME ,"TYPE_NAME"},
+  {LT_OP, "SEPARATOR"},
+  {LT_CP, "SEPARATOR"},
+  {LT_OSB, "SEPARATOR"},
+  {LT_CSB, "SEPARATOR"}
 };
 
 set<string> key_words = {
@@ -71,11 +76,31 @@ int Lexeme::get_type(){
       type = LT_FUNCTION_NAME;
     }
   }
+  if (type == LT_SEPARATOR){
+      setting_separator();
+  }
   return type;
 }
 
 string Lexeme::get_type_str(){
   return types[type];
+}
+
+void Lexeme::setting_separator(){
+  switch (str[0]) {
+    case '(':
+      type = LT_OP;
+      break;
+    case ')':
+      type = LT_CP;
+      break;
+    case '[':
+      type = LT_OSB;
+      break;
+    case ']':
+      type = LT_CSB;
+      break;
+  }
 }
 
 string Lexeme::get_value(){
@@ -86,12 +111,9 @@ string Lexeme::get_value(){
     case LT_FLOAT_AFTER_POINT:
       throw Errors::Unknown_lexeme(*this);
     case LT_SPACE:
-      for (unsigned int i = 0; i < str.size(); i++){
-        if (str[i] == '\n'){
-          return "NewLine\n";
-        }
-      }
       return "Spaces";
+    case LT_NEW_LINE:
+      return "NewLine\n";
     case LT_DIRECT:
     case LT_EOF:
       return "EndOfFile";
@@ -100,7 +122,6 @@ string Lexeme::get_value(){
     case LT_STRING:
     case LT_FLOAT:
     case LT_INT:
-    case LT_SEPARATOR:
     case LT_OPERATOR:
     case LT_VAR:
     case LT_ARRAY:
@@ -108,6 +129,7 @@ string Lexeme::get_value(){
     case LT_IDENTIFICATE:
     case LT_KEY_WORD:
     case LT_FUNCTION_NAME:
+    case LT_SEPARATOR:
     default:
       return str;
   }

@@ -14,6 +14,7 @@ public:
   Searcher(std::string file_name);
   ~Searcher();
   Lexeme next();
+  Lexeme next_with_spaces();
   Lexeme get_current();
 private:
   void learn();

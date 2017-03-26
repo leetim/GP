@@ -18,6 +18,7 @@ map<string, int> SyntaxisAnalyser::operation_unary_prefix = {
   {"!", 2}
 };
 map<string, int> SyntaxisAnalyser::operation_binary_left = {
+  {"[", 14},
   {".", 13},
   {"*", 12},
   {"/", 11},
@@ -26,15 +27,15 @@ map<string, int> SyntaxisAnalyser::operation_binary_left = {
   {"-", 10},
   {"<<", 9},
   {">>", 9},
-  {"<", 8},
-  {"<=", 8},
-  {">", 8},
-  {">=", 8},
-  {"==", 7},
-  {"!=", 7},
-  {"&", 6},
-  {"^", 5},
-  {"|", 4},
+  {"&", 8},
+  {"^", 7},
+  {"|", 6},
+  {"<", 5},
+  {"<=", 5},
+  {">", 5},
+  {">=", 5},
+  {"==", 4},
+  {"!=", 4},
   {"&&", 3},
   {"||", 2}
   // {",", 1}
@@ -64,16 +65,24 @@ PNocle SyntaxisAnalyser::parse_expr(int priority){
   Lexeme next = searcher.get_current();
   while(check_priority(next, priority)){
     searcher.next();
-    PNocle right = parse_expr(priority + 1);
-    temp = PNocle(new NocleBinaryLeft(next, temp, right));
-    next = searcher.get_current();
+    if (next == LT_OSB){
+      PNocle inside = parse_expr(1);
+      temp = PNocle(new NocleBinaryLeft(Lexeme("array_element", 0, 0, LT_SEPARATOR), temp, inside));
+      require_lexeme(LT_CSB);
+      next = searcher.next();
+    }
+    else{
+      PNocle right = parse_expr(priority + 1);
+      temp = PNocle(new NocleBinaryLeft(next, temp, right));
+      next = searcher.get_current();
+    }
   }
   return temp;
 }
 
 PNocle SyntaxisAnalyser::parse_factor(){
   Lexeme cur = searcher.get_current();
-  // cout << cur.get_str() << endl;
+  // cout << cur.get_str() << " " << cur.is_identificator() << endl;
   if (cur.is_identificator()){
     return parse_identificator();
   }
@@ -86,15 +95,13 @@ PNocle SyntaxisAnalyser::parse_factor(){
   if (operation_unary_prefix[cur.get_str()]){
     return PNocle(new NocleUnaryPrefix(cur, parse_factor()));
   }
-  if (cur.get_str() == "("){
+  // cout << next.get_str() << " " << cur.get_str() << endl;
+  if (cur == LT_OP){
     PNocle temp = parse_expr(1);
-    if (searcher.get_current().get_str() != ")"){
-      throw Errors::Illegal_expression(cur); //Нужна адекватная ошибка
-    }
+    require_lexeme(LT_CP);
     searcher.next();
     return temp;
   }
-  // cout << next.get_str() << " " << cur.get_str() << endl;
   if (cur == LT_EOF){
     return PNocle(new Nocle(cur));
   }
@@ -102,31 +109,48 @@ PNocle SyntaxisAnalyser::parse_factor(){
   // return NULL;
 }
 
+PNocle SyntaxisAnalyser::parse_function(PNocle ident, LexemeType finish){
+  NocleMulty* res = new NocleMulty(Lexeme("function", 0, 0, LT_SEPARATOR));
+  res->add_child(ident);
+  while (true){
+    // cout << "REQ" << endl;
+    PNocle temp = parse_expr();
+    res->add_child(temp);
+    // cout << searcher.get_current().get_str() << endl;
+    if (searcher.get_current().get_str() != ","){
+      break;
+    }
+    searcher.next();
+  }
+  // cout << "REQ " << next.get_str() << endl;
+  if (finish != LT_NONE){
+    require_lexeme(finish);
+    searcher.next();
+  }
+  return PNocle(res);
+}
+
 PNocle SyntaxisAnalyser::parse_identificator(){
   Lexeme cur = searcher.get_current();
-  Lexeme next = searcher.next();
+  Lexeme next = searcher.next_with_spaces();
   PNocle ident(new NocleTerminate(cur));
-  // cout << "REQ " << cur.get_str() << endl;
-  if (next.get_str() == "["){
-    searcher.next();
-    PNocle temp = parse_expr();
-    require_lexeme("]");
-    searcher.next();
-    return PNocle(new NocleBinaryRight(next, ident, temp));
+  if (next.get_type() == LT_SPACE){
+    next = searcher.next();
+    if (!(next == LT_OPERATOR)){
+      return parse_function(ident, LT_NONE);
+    }
   }
-  if (next.get_str() == "("){
+  if (next == LT_OP){
     searcher.next();
-    PNocle temp = parse_expr();
-    require_lexeme(")");
-    searcher.next();
-    return PNocle(new NocleBinaryRight(next, ident, temp));
+    return parse_function(ident, LT_CP);
   }
   return ident;
 }
 
-bool SyntaxisAnalyser::require_lexeme(string t){
-  if (searcher.get_current().get_value() == t)
+bool SyntaxisAnalyser::require_lexeme(LexemeType lt){
+  if (searcher.get_current() == lt){
     return true;
+  }
   throw Errors::ClosingParenthesisNotFound(searcher.get_current());
 }
 

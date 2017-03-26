@@ -229,12 +229,21 @@ PCondition get_active_str(){
 PCondition get_spaces(){
   vector<char> a = {
     ' ',
-    '\t',
-    '\n'
+    '\t'
   };
-  PCondition temp = get_union(a, LT_SPACE);
-  temp->add_child(temp);
-  return temp;
+  PCondition space = get_union(a, LT_SPACE);
+  PCondition new_line = get_scalar('\n');
+  new_line->set_type(LT_NEW_LINE);
+  space->add_child(space);
+  space->add_child(new_line);
+  return space;
+}
+
+PCondition get_newline(){
+  PCondition new_line = get_scalar('\n');
+  new_line->set_type(LT_NEW_LINE);
+  return new_line;
+
 }
 
 void get_operator(PCondition start){
@@ -321,6 +330,7 @@ void Machine::learn(){
   start->add_child(get_leteral());
   start->add_child(get_leteral_str());
   start->add_child(get_spaces());
+  start->add_child(get_newline());
   get_operator(start);
   start->add_child(get_separator());
   start->add_child(get_comment());
