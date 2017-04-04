@@ -49,7 +49,15 @@ int main(int argc, char** argv){
     str = string(DEF_STR);
   }
   SyntaxisAnalyser sa(str);
-  PNocle pn = sa.get_tree();
-  cout << pn->get_str() << endl;
+  try{
+    PNocle pn = sa.get_tree();
+    cout << pn->get_str() << endl;
+  }
+  catch(Errors::Illegal_expression e){
+    e.print();
+  }
+  catch(Errors::ClosingParenthesisNotFound e){
+    e.print();
+  }
   return 0;
 }

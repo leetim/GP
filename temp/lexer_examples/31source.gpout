@@ -1,1 +1,4 @@
-1 1 EOF EndOfFile
+1 1 VARIABLE $a
+1 4 OPERATOR |
+1 6 VARIABLE $b
+2 1 EOF EndOfFile

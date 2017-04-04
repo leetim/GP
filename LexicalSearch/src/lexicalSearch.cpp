@@ -23,15 +23,18 @@ Searcher::~Searcher(){
 }
 
 Lexeme Searcher::next(){
-  current = get_next();
-  while (current.get_value() == "Spaces"){
-    current = get_next();
+  current = next_with_spaces();
+  while (current == LT_SPACE || current == LT_NEW_LINE){
+    current = next_with_spaces();
   }
   return current;
 }
 
 Lexeme Searcher::next_with_spaces(){
   current = get_next();
+  while (current == LT_COMMENT){
+    current = get_next();
+  }
   return current;
 }
 

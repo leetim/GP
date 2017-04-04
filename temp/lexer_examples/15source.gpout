@@ -1,9 +1,3 @@
 1 1 KEY_WORD do
-1 3 SPACE NewLine
-
-2 1 SPACE NewLine
-
 3 1 KEY_WORD end
-3 4 SPACE NewLine
-
 4 1 EOF EndOfFile

@@ -1,8 +1,2 @@
-1 1 COMMENT #Какой-то комментарий
-
 2 1 KEY_WORD var
-2 5 COMMENT #какой-то коментарий после идентификатора
-
-3 1 COMMENT #
-
 4 1 EOF EndOfFile

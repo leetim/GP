@@ -15,6 +15,15 @@ private:
   PNocle parse_factor();
   PNocle parse_identificator();
   PNocle parse_function(PNocle ident, LexemeType finish);
+
+  PNocle parse_statment(PSymbolTable t = NULL);
+  PNocle parse_simple_statment(PSymbolTable t = NULL);
+  PNocle parse_block(PSymbolTable t = NULL);
+  PNocle parse_while_cycle(PSymbolTable t = NULL);
+  PNocle parse_for_cycle(PSymbolTable t = NULL);
+  PNocle parse_if(PSymbolTable t = NULL);
+  PNocle parse_def_variable(PSymbolTable t = NULL);
+
   bool require_lexeme(LexemeType lt);
   bool check_priority(Lexeme lex, int priority);
   static int max_priority;

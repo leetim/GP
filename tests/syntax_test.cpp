@@ -61,11 +61,27 @@ protected:
 		ASSERT_EQ(pn->get_str(), get_tree_str(file));
 	}
 
+	void testingExeption(string file){
+		preparation(file);
+		try{
+			PNocle pn = s->get_tree();
+		}
+		catch(Errors::Unknown_lexeme e){
+			ASSERT_EQ(e.get_error_str(), get_tree_str(file));
+		}
+		catch(Errors::Illegal_expression e){
+			ASSERT_EQ(e.get_error_str(), get_tree_str(file));
+		}
+		catch(Errors::ClosingParenthesisNotFound e){
+			ASSERT_EQ(e.get_error_str(), get_tree_str(file));
+		}
+	}
+
 	SyntaxisAnalyser* s;
 };
 
 TEST_F(SyntaxisTest, 01_Empty_File){
-	testingFile(files[0]);
+	testingExeption(files[0]);
 }
 
 TEST_F(SyntaxisTest, 02_Simple_integer){

@@ -4,6 +4,8 @@
 #include <string>
 #include <sstream>
 #include <memory>
+#include <symbol.h>
+#include <symbol_table.h>
 
 class Nocle;
 enum NocleType{
@@ -27,6 +29,9 @@ public:
   std::string get_str();
   virtual NocleType get_type();
   virtual void get_str(std::stringstream& ss, int depth = 0);
+  virtual bool check_lvalue(PSymbolTable);
+  virtual bool check_types(PSymbolTable);
+  // virtual Symbol::PType get_type();
 private:
   Lexeme lexeme;
 };
@@ -74,8 +79,8 @@ public:
   PNocle get_child(int ind);
   PNocle operator[](int ind);
   NocleType get_type();
-  void get_str(std::stringstream& ss, int depth = 0);
-private:
+  virtual void get_str(std::stringstream& ss, int depth = 0);
+protected:
   std::vector<PNocle> children;
 };
 
@@ -107,8 +112,65 @@ public:
   NocleType get_type();
 };
 
+class NocleFunction: public NocleMulty{
+public:
+  NocleFunction(): NocleMulty(Lexeme("function", 0, 0, LT_SEPARATOR)){};
+private:
+  // static Lexeme func = Lexeme("function", 0, 0, LT_SEPARATOR);
+};
+
+class NocleArrayElement: public NocleBinaryRight{
+public:
+  NocleArrayElement(PNocle left, PNocle right): NocleBinaryRight(
+    Lexeme("array_element", 0, 0, LT_SEPARATOR), left, right){};
+private:
+  // static Lexeme func = Lexeme("function", 0, 0, LT_SEPARATOR);
+};
+
+class NocleBlock: public NocleMulty{
+public:
+  NocleBlock(): NocleMulty(Lexeme("block", 0, 0, LT_SEPARATOR)){};
+  NocleBlock(PSymbolTable t): NocleMulty(Lexeme("block", 0, 0, LT_SEPARATOR)),
+    table(t){};
+  bool check_types(PSymbolTable);
+private:
+  PSymbolTable table;
+  // static Lexeme func = Lexeme("function", 0, 0, LT_SEPARATOR);
+};
+
 typedef std::shared_ptr<NocleMulty> PNocleMulty;
 typedef std::shared_ptr<NocleUnaryPrefix> PNocleUnaryPrefix;
 typedef std::shared_ptr<NocleUnaryPostfix> PNocleUnaryPostfix;
 typedef std::shared_ptr<NocleBinaryLeft> PNocleBinaryLeft;
 typedef std::shared_ptr<NocleBinaryRight> PNocleBinaryRight;
+
+////////////////////////////////////////////////////////////////////////////////
+namespace Symbol{
+  class Record: public Type{
+  public:
+    Record();
+    Record(std::string name, PSymbolTable st);
+  private:
+    PSymbolTable stable;
+  };
+
+  class Procedure: public Base{
+  public:
+    Procedure();
+    Procedure(std::string name, PSymbolTable st, PNocle b);
+  private:
+    PSymbolTable stable;
+    PNocle block;
+  };
+
+  class Function: public Base{
+  public:
+    Function();
+    Function(std::string name, PSymbolTable st, PNocle b);
+  private:
+    PSymbolTable stable;
+    PNocle block;
+  };
+};
+
+////////////////////////////////////////////////////////////////////////////////

@@ -25,4 +25,4 @@ target_link_libraries(syntax_test gtest gtest_main gmock gmock_main lexicalSearc
 
 #Добавление тестов
 add_test(NAME lexicalSearch_test COMMAND lexical_test)
-add_test(NAME syntaxAnalysis_test COMMAND syntax_test)
+add_test(NAME syntaxAnalysis_simple_expr_test COMMAND syntax_test)

@@ -174,6 +174,118 @@ TEST_F(LexerTest, 22_operators_points_and_int){
 	testingFile(files[21]);
 }
 
+TEST_F(LexerTest, 23_operators_add_sub_eq){
+	testingFile(files[22]);
+}
+
+TEST_F(LexerTest, 24_operators_subsubsub){
+	testingFile(files[23]);
+}
+
+TEST_F(LexerTest, 25_operators_addaddadd){
+	testingFile(files[24]);
+}
+
+TEST_F(LexerTest, 26_operators_mult_div){
+	testingFile(files[25]);
+}
+
+TEST_F(LexerTest, 27_operators_bits){
+	testingFile(files[26]);
+}
+
+TEST_F(LexerTest, 28_operators_comma_and_colon){
+	testingFile(files[27]);
+}
+
+TEST_F(LexerTest, 29_leterals_float){
+	testingFile(files[28]);
+}
+
+TEST_F(LexerTest, 30_add_two_integers){
+	testingFile(files[29]);
+}
+
+TEST_F(LexerTest, 31_bits_or_for_two_vars){
+	testingFile(files[30]);
+}
+
+TEST_F(LexerTest, 32_operators_points_and_int){
+	testingFile(files[31]);
+}
+
+TEST_F(LexerTest, 33_operators_points_and_int){
+	testingFile(files[32]);
+}
+
+TEST_F(LexerTest, 34_operators_points_and_int){
+	testingFile(files[33]);
+}
+
+TEST_F(LexerTest, 35_operators_points_and_int){
+	testingFile(files[34]);
+}
+
+TEST_F(LexerTest, 36_operators_points_and_int){
+	testingFile(files[35]);
+}
+
+TEST_F(LexerTest, 37_operators_points_and_int){
+	testingFile(files[36]);
+}
+
+TEST_F(LexerTest, 38_operators_points_and_int){
+	testingFile(files[37]);
+}
+
+TEST_F(LexerTest, 39_operators_points_and_int){
+	testingFile(files[38]);
+}
+
+TEST_F(LexerTest, 40_operators_points_and_int){
+	testingFile(files[39]);
+}
+
+TEST_F(LexerTest, 41_operators_points_and_int){
+	testingFile(files[40]);
+}
+
+TEST_F(LexerTest, 42_operators_points_and_int){
+	testingFile(files[41]);
+}
+
+TEST_F(LexerTest, 43_operators_points_and_int){
+	testingFile(files[42]);
+}
+
+TEST_F(LexerTest, 44_operators_points_and_int){
+	testingFile(files[43]);
+}
+
+TEST_F(LexerTest, 45_operators_points_and_int){
+	testingFile(files[44]);
+}
+
+TEST_F(LexerTest, 46_operators_points_and_int){
+	testingFile(files[45]);
+}
+
+TEST_F(LexerTest, 47_operators_points_and_int){
+	testingFile(files[46]);
+}
+
+TEST_F(LexerTest, 48_operators_points_and_int){
+	testingFile(files[47]);
+}
+
+TEST_F(LexerTest, 49_operators_points_and_int){
+	testingFile(files[48]);
+}
+
+TEST_F(LexerTest, 50_operators_points_and_int){
+	testingFile(files[49]);
+}
+
 int main(int argc, char* argv[]){
 	::testing::InitGoogleTest(&argc, argv);
 	return RUN_ALL_TESTS();

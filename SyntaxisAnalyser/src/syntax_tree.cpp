@@ -32,6 +32,19 @@ void Nocle::get_str(stringstream& ss, int depth){
 }
 
 
+bool Nocle::check_lvalue(PSymbolTable){
+  return false;
+}
+
+bool Nocle::check_types(PSymbolTable){
+  return true;
+}
+
+// Symbol::PType get_type(){
+//   return PType(new Symbol::Integer());
+// }
+
+
 ////////////////////////////////////////////////////////////////////////////////
 //NocleTerminate
 
@@ -155,4 +168,15 @@ NocleType NocleBinaryLeft::get_type(){
 
 NocleType NocleBinaryRight::get_type(){
   return NT_BINARY_RIGHT;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//NocleBlock
+
+bool NocleBlock::check_types(PSymbolTable t){
+  bool temp = true;
+  for (auto i: children){
+    temp = temp && i->check_types(t);
+  }
+  return false;
 }

@@ -1,10 +1,4 @@
 1 1 ARRAY @f
-1 3 SPACE NewLine
-
 2 1 ARRAY @arr
-2 5 SPACE NewLine
-
 3 1 ARRAY @for
-3 5 SPACE NewLine
-
 4 1 EOF EndOfFile

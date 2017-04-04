@@ -19,7 +19,7 @@ static map<LexemeType, string> types = {
   {LT_FLOAT ,"LETERAL_FLOAT"},
   {LT_INT ,"LETERAL_INTEGER"},
   {LT_STRING ,"LETERAL_STRING"},
-  {LT_VAR ,"VARIABLE"},
+  {LT_VARIABLE ,"VARIABLE"},
   {LT_ARRAY ,"ARRAY"},
   {LT_COMMENT ,"COMMENT"},
   {LT_KEY_WORD ,"KEY_WORD"},
@@ -28,7 +28,30 @@ static map<LexemeType, string> types = {
   {LT_OP, "SEPARATOR"},
   {LT_CP, "SEPARATOR"},
   {LT_OSB, "SEPARATOR"},
-  {LT_CSB, "SEPARATOR"}
+  {LT_CSB, "SEPARATOR"},
+  {LT_OB, "SEPARATOR"},
+  {LT_CB, "SEPARATOR"},
+  {LT_TYPE, "KEY_WORD"},
+  {LT_VAR, "KEY_WORD"},
+  {LT_DEF, "KEY_WORD"},
+  {LT_DO, "KEY_WORD"},
+  {LT_END, "KEY_WORD"},
+  {LT_FOR, "KEY_WORD"},
+  {LT_IF, "KEY_WORD"},
+  {LT_WHILE, "KEY_WORD"},
+  {LT_REF, "KEY_WORD"},
+  {LT_RETURN, "KEY_WORD"},
+  {LT_IN, "KEY_WORD"},
+  {LT_RECORD, "KEY_WORD"},
+  {LT_BREAK, "KEY_WORD"},
+  {LT_CONTINUE, "KEY_WORD"},
+  {LT_END, "KEY_WORD"},
+  {LT_TRUE, "KEY_WORD"},
+  {LT_FALSE, "KEY_WORD"},
+  {LT_NULL, "KEY_WORD"},
+  {LT_CONST, "KEY_WORD"},
+  {LT_ARROW, "OPERATOR"},
+  {LT_ASSIGMENT, "OPERATOR"},
 };
 
 set<string> key_words = {
@@ -49,7 +72,46 @@ set<string> key_words = {
   "else",
   "true",
   "false",
-  "null"
+  "null",
+  "const"
+};
+
+map<string, LexemeType> types_key_words = {
+  {"(", LT_OP},
+  {")", LT_CP},
+  {"[", LT_OSB},
+  {"]", LT_CSB},
+  {"{", LT_OB},
+  {"}", LT_CB},
+  {"type", LT_TYPE},
+  {"var", LT_VAR},
+  {"def", LT_DEF},
+  {"do", LT_DO},
+  {"end", LT_END},
+  {"for", LT_FOR},
+  {"if", LT_IF},
+  {"while", LT_WHILE},
+  {"ref", LT_REF},
+  {"return", LT_RETURN},
+  {"in", LT_IN},
+  {"record", LT_RECORD},
+  {"break", LT_BREAK},
+  {"continue", LT_CONTINUE},
+  {"end", LT_END},
+  {"true", LT_TRUE},
+  {"false", LT_FALSE},
+  {"null", LT_NULL},
+  {"const", LT_CONST},
+  {"->", LT_ARROW},
+  {"=", LT_ASSIGMENT},
+  {"+=", LT_ASSIGMENT},
+  {"-=", LT_ASSIGMENT},
+  {"/=", LT_ASSIGMENT},
+  {"*=", LT_ASSIGMENT},
+  {"%=", LT_ASSIGMENT},
+  {"|=", LT_ASSIGMENT},
+  {"&=", LT_ASSIGMENT},
+  {"^=", LT_ASSIGMENT},
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -68,39 +130,17 @@ int Lexeme::get_col(){
 }
 
 int Lexeme::get_type(){
-  if (type == LT_IDENTIFICATE){
-    if (key_words.find(str) != key_words.end()){
-      type = LT_KEY_WORD;
-    }
-    else{
-      type = LT_FUNCTION_NAME;
-    }
+  if (types_key_words[get_str()]){
+    type = types_key_words[get_str()];
   }
-  if (type == LT_SEPARATOR){
-      setting_separator();
+  if (type == LT_IDENTIFICATE){
+    type = LT_FUNCTION_NAME;
   }
   return type;
 }
 
 string Lexeme::get_type_str(){
   return types[type];
-}
-
-void Lexeme::setting_separator(){
-  switch (str[0]) {
-    case '(':
-      type = LT_OP;
-      break;
-    case ')':
-      type = LT_CP;
-      break;
-    case '[':
-      type = LT_OSB;
-      break;
-    case ']':
-      type = LT_CSB;
-      break;
-  }
 }
 
 string Lexeme::get_value(){
@@ -123,7 +163,7 @@ string Lexeme::get_value(){
     case LT_FLOAT:
     case LT_INT:
     case LT_OPERATOR:
-    case LT_VAR:
+    case LT_VARIABLE:
     case LT_ARRAY:
     case LT_COMMENT:
     case LT_IDENTIFICATE:
@@ -148,7 +188,7 @@ bool Lexeme::is_leteral(){
 
 bool Lexeme::is_identificator(){
   switch(type){
-    case LT_VAR:
+    case LT_VARIABLE:
     case LT_ARRAY:
     case LT_FUNCTION_NAME:
     case LT_TYPE_NAME:
@@ -158,10 +198,39 @@ bool Lexeme::is_identificator(){
   }
 }
 
+bool Lexeme::is_separator(){
+  switch(type){
+    case LT_OP:
+    case LT_CP:
+    case LT_OSB:
+    case LT_CSB:
+    case LT_OB:
+    case LT_CB:
+      return true;
+    default:
+      return false;
+  }
+}
+
+bool Lexeme::is_close_separator(){
+  switch(type){
+    case LT_CP:
+    case LT_CSB:
+    case LT_CB:
+      return true;
+    default:
+      return false;
+  }
+}
 
 bool Lexeme::operator==(const LexemeType& ltype) const{
   return type == ltype;
 }
+
+bool Lexeme::operator!=(const LexemeType& lt) const{
+  return type != lt;
+}
+
 
 
 void Lexeme::print(){

@@ -2,7 +2,8 @@
 #include <string>
 #include <vector>
 #include <sstream>
-
+#include <iostream>
+#include <sstream>
 
 enum LexemeType{
   LT_NONE,
@@ -16,7 +17,7 @@ enum LexemeType{
   LT_FLOAT,
   LT_INT,
   LT_STRING,
-  LT_VAR,
+  LT_VARIABLE,
   LT_ARRAY,
   LT_COMMENT,
   LT_FLOAT_AFTER_POINT,
@@ -30,6 +31,28 @@ enum LexemeType{
   LT_CP,
   LT_OSB,//Открывающая квадратная скобка
   LT_CSB,
+  LT_OB,//Открывающая фигурная скобка
+  LT_CB,
+  LT_TYPE,
+  LT_VAR,
+  LT_DEF,
+  LT_DO,
+  LT_FOR,
+  LT_IF,
+  LT_WHILE,
+  LT_REF,
+  LT_RETURN,
+  LT_IN,
+  LT_RECORD,
+  LT_BREAK,
+  LT_CONTINUE,
+  LT_END,
+  LT_TRUE,
+  LT_FALSE,
+  LT_NULL,
+  LT_CONST,
+  LT_ARROW,
+  LT_ASSIGMENT
   // LT_
 };
 
@@ -54,10 +77,12 @@ public:
   std::string get_value();
   bool is_leteral();
   bool is_identificator();
+  bool is_separator();
+  bool is_close_separator();
   void print();
   bool operator==(const LexemeType&) const;
+  bool operator!=(const LexemeType&) const;
 private:
-  void setting_separator();
   std::string str;
   int row;
   int col;
@@ -77,30 +102,44 @@ namespace Errors{
     Lexeme last_lexeme;
   };
 
-
-  struct Unknown_symbol{
-    Unknown_symbol(){};
-    Unknown_symbol(char _c, int _row, int _col): c(_c), row(_row), col(_col){};
-    char c;
-    int row;
-    int col;
+  class Base_lexeme_error{
+  public:
+    Base_lexeme_error(){};
+    Base_lexeme_error(Lexeme l, std::string s): lex(l), str(s){};
+    virtual void print(){
+      std::cout << str << std::endl;
+      lex.print();
+    };
+    virtual std::string get_error_str(){
+      std::stringstream ss;
+      ss << str << "\n"
+      << lex.get_row() + 1 << " " << lex.get_col() + 1 << " "
+      << lex.get_type_str() << " " << lex.get_value() << "\n";
+      return ss.str();
+    };
+    Lexeme lex;
+  private:
+    std::string str;
   };
 
-  struct Unknown_lexeme{
+  class Unknown_lexeme: public Base_lexeme_error{
+  public:
     Unknown_lexeme(){};
-    Unknown_lexeme(Lexeme l): lex(l){};
+    Unknown_lexeme(Lexeme l): Base_lexeme_error(l, "Unknown lexeme"){};
     Lexeme lex;
   };
 
-  struct Illegal_expression{
+  class Illegal_expression: public Base_lexeme_error{
+  public:
     Illegal_expression(){};
-    Illegal_expression(Lexeme l): lex(l){};
+    Illegal_expression(Lexeme l): Base_lexeme_error(l, "Illegal expression"){};
     Lexeme lex;
   };
 
-  struct ClosingParenthesisNotFound{
+  class ClosingParenthesisNotFound: public Base_lexeme_error{
+  public:
     ClosingParenthesisNotFound(){};
-    ClosingParenthesisNotFound(Lexeme l): lex(l){};
+    ClosingParenthesisNotFound(Lexeme l): Base_lexeme_error(l, "Closing parenthesis not found"){};
     Lexeme lex;
   };
 

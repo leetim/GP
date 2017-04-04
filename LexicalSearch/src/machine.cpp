@@ -270,7 +270,8 @@ void get_operator(PCondition start){
     "-=",
     "*=",
     "|=",
-    "&="
+    "&=",
+    "->"
   };
   for (auto i = a.begin(); i != a.end(); i++){
     PCondition cur = start;
@@ -323,7 +324,7 @@ PCondition get_eof(){
 void Machine::learn(){
   start = PCondition(new Condition_unity);
   cur = start;
-  start->add_child(get_variable(LT_VAR, '$'));
+  start->add_child(get_variable(LT_VARIABLE, '$'));
   start->add_child(get_variable(LT_ARRAY, '@'));
   start->add_child(get_identificate());
   start->add_child(get_identificate_type());
