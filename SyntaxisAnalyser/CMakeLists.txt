@@ -8,6 +8,6 @@ set(CMAKE_EXE_LINKER_FLAGS "-pthread")
 include_directories(./include)
 
 #Бинарники
-set( SA_SOURCE ./src/syntaxis_analyser.cpp ./src/syntax_tree.cpp ./src/symbol_table.cpp )
+set( SA_SOURCE ./src/syntaxis_analyser.cpp ./src/syntax_tree.cpp ./src/symbol_table.cpp ./src/symbol.cpp )
 add_library( syntaxisAnalyser STATIC ${SA_SOURCE} )
 target_link_libraries( syntaxisAnalyser lexicalSearch)

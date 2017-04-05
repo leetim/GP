@@ -26,7 +26,7 @@ string Nocle::get_str(){
 }
 
 void Nocle::get_str(stringstream& ss, int depth){
-  ss << "\n";
+  ss << "";
   // cout << "NNYA" << endl;
   // return "";
 }
@@ -75,7 +75,12 @@ PNocle NocleUnary::get_child(){
 }
 
 void NocleUnary::get_str(stringstream& ss, int depth){
-  ss << string(depth*8, '_') << get_lexeme().get_value() << "\n";
+  if (depth == 0){
+    ss << get_lexeme().get_value() << "\n";
+  }
+  else{
+    ss << string((depth - 1)*4, ' ') << "|___" << get_lexeme().get_value() << "\n";
+  }
   child->get_str(ss, depth + 1);
   // return get_lexeme().get_value();
 }

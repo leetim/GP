@@ -18,7 +18,7 @@ private:
 
   PNocle parse_statment(PSymbolTable t = NULL);
   PNocle parse_simple_statment(PSymbolTable t = NULL);
-  PNocle parse_block(PSymbolTable t = NULL);
+  PNocle parse_block(PSymbolTable t, LexemeType end = LT_END);
   PNocle parse_while_cycle(PSymbolTable t = NULL);
   PNocle parse_for_cycle(PSymbolTable t = NULL);
   PNocle parse_if(PSymbolTable t = NULL);

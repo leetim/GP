@@ -1,1 +1,31 @@
 #include <symbol.h>
+
+using namespace std;
+using namespace Symbol;
+
+
+////////////////////////////////////////////////////////////////////
+//Base
+
+string Base::get_name(){
+  return name;
+}
+
+void Base::set_name(string n){
+  name = n;
+}
+
+////////////////////////////////////////////////////////////////////
+//Type
+
+Type::Type(string s){
+  set_name(s);
+}
+
+////////////////////////////////////////////////////////////////////
+//Variable
+
+Variable::Variable(string n, PType t){
+  type = t;
+  set_name(n);
+}

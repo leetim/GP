@@ -14,6 +14,10 @@ public:
   void add_symbol(Symbol::PBase arg);
   Symbol::PBase operator[](std::string);
   Symbol::PBase operator[](int);
+  Symbol::PBase get_symbol(std::string);
+  Symbol::PBase get_symbol(int);
+  Symbol::PType get_type_from_str(std::string);
+  void print(int lvl = 0);
   unsigned int get_count();
   // static Symbol::PSymbolTable
 private:

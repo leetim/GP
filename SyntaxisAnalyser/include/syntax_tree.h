@@ -138,6 +138,34 @@ private:
   // static Lexeme func = Lexeme("function", 0, 0, LT_SEPARATOR);
 };
 
+class NocleIf: public NocleMulty{
+public:
+  NocleIf(): NocleMulty(){};
+  NocleIf(PNocle expr, PNocle block_if, PNocle block_else): NocleMulty(Lexeme("if", 0, 0, LT_SEPARATOR)){
+    this->add_child(expr);
+    this->add_child(block_if);
+    this->add_child(block_else);
+  };
+};
+
+class NocleWhile: public NocleBinary{
+public:
+  NocleWhile(): NocleBinary(){};
+  NocleWhile(PNocle expr, PNocle block): NocleBinary(Lexeme("while", 0, 0, LT_SEPARATOR),
+    expr, block){};
+};
+
+class NocleFor: public NocleMulty{
+public:
+  NocleFor(): NocleMulty(){};
+  NocleFor(PSymbolTable st, PNocle expr, PNocle block): NocleMulty(Lexeme("for", 0, 0, LT_SEPARATOR)), stable(st){
+    this->add_child(expr);
+    this->add_child(block);
+  };
+private:
+  PSymbolTable stable;
+};
+
 typedef std::shared_ptr<NocleMulty> PNocleMulty;
 typedef std::shared_ptr<NocleUnaryPrefix> PNocleUnaryPrefix;
 typedef std::shared_ptr<NocleUnaryPostfix> PNocleUnaryPostfix;

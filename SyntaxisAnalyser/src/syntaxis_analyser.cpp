@@ -54,14 +54,26 @@ map<string, int> SyntaxisAnalyser::operation_binary_right = {
   {"^=", 15}
 };
 
+PSymbolTable get_global_table(){
+  PSymbolTable global = PSymbolTable(new SymbolTable());
+  Symbol::PType str(new Symbol::String());
+  Symbol::PType arr(new Symbol::Array(str, -1));
+  global->add_symbol(Symbol::PBase(new Symbol::Variable("$", arr)));
+  return global;
+}
+
 PNocle SyntaxisAnalyser::get_tree(){
   searcher.next();
-  return parse_statment();
+  PSymbolTable st = get_global_table();
+  PNocle temp = parse_statment(st);
+  // st->print();
+  return temp;
 }
 
 PNocle SyntaxisAnalyser::parse_statment(PSymbolTable t){
   PNocle temp;
   Lexeme cur = searcher.get_current();
+  // cur.print();
   switch (cur.get_type()){
     case LT_DO:
       searcher.next();
@@ -71,46 +83,92 @@ PNocle SyntaxisAnalyser::parse_statment(PSymbolTable t){
       temp = parse_for_cycle(t);
       break;
     case LT_WHILE:
-      temp = parse_for_cycle(t);
+      temp = parse_while_cycle(t);
       break;
     case LT_IF:
-      temp = parse_for_cycle(t);
+      temp = parse_if(t);
       break;
     case LT_VAR:
-      parse_def_variable(t);
+      temp = parse_def_variable(t);
+      break;
     default:
       temp = parse_simple_statment(t);
   }
   return temp;
 }
 
-PNocle SyntaxisAnalyser::parse_block(PSymbolTable t){
-  Lexeme cur = Lexeme();
-  NocleMulty* res = new NocleBlock();
-  while (cur != LT_END){
-    res->add_child(parse_statment());
-    cur = searcher.next();
-    // cur.print();
-    // cout << cur.get_type() << " " << LT_END << endl;
+PNocle SyntaxisAnalyser::parse_block(PSymbolTable t, LexemeType end){
+  Lexeme cur = searcher.get_current();
+  PSymbolTable table(new SymbolTable(t));
+  NocleMulty* res = new NocleBlock(table);
+  // cur.print();
+  while (cur != end && cur != LT_END){
+    res->add_child(parse_statment(table));
+    cur = searcher.get_current();
   }
+  searcher.next();
+  cout << "Table:" << endl;
+  table->print();
   return PNocle(res);
 }
 
 PNocle SyntaxisAnalyser::parse_while_cycle(PSymbolTable t){
-  return PNocle();
+  searcher.next();
+  PNocle expr = parse_expr();
+  // cout << "123" << endl;
+  searcher.get_current().print();
+  PNocle block = parse_block(t);
+  NocleWhile* nif = new NocleWhile(expr, block);
+  return PNocle(nif);
 }
 
 PNocle SyntaxisAnalyser::parse_for_cycle(PSymbolTable t){
-  return PNocle();
+  PSymbolTable st(t);
+  Lexeme var = searcher.next();
+  searcher.next();
+  require_lexeme(LT_IN);
+  searcher.next();
+  PNocle range = parse_expr();
+  // Добавить типы в таблицу символов
+  PNocle block = parse_block(st);
+  NocleFor* nf = new NocleFor(st, range, block);
+  return PNocle(nf);
 }
 
 PNocle SyntaxisAnalyser::parse_if(PSymbolTable t){
-  return PNocle();
+    searcher.next();
+    PNocle expr = parse_expr();
+    searcher.get_current().print();
+    PNocle block_if = parse_block(t, LT_ELSE);
+    PNocle block_else;
+    if (searcher.get_current() == LT_ELSE){
+      // searcher.next();
+      block_else = parse_block(t);
+    }
+    else{
+      block_else = PNocle(new Nocle());
+    }
+    NocleIf* nif = new NocleIf(expr, block_if, block_else);
+    return PNocle(nif);
 }
 
 PNocle SyntaxisAnalyser::parse_def_variable(PSymbolTable t){
-
-  return PNocle();
+  Lexeme name = searcher.next();
+  searcher.next();
+  require_lexeme(LT_COLON);
+  Lexeme type_name = searcher.next();
+  Lexeme assigment = searcher.next();
+  Symbol::Variable* var = new Symbol::Variable(name.get_str(), t->get_type_from_str(type_name.get_str()));
+  t->add_symbol(Symbol::PBase(var));
+  // cout << t->get_count() << endl;
+  if (assigment.get_str() == "="){
+    searcher.next();
+    PNocle expr = parse_expr();
+    // cout << expr->get_str() << endl;
+    PNocle term(new NocleTerminate(name));
+    return PNocle(new NocleBinary(assigment, term, expr));
+  }
+  return PNocle(new Nocle());
 }
 
 PNocle SyntaxisAnalyser::parse_expr(int priority){
@@ -196,6 +254,9 @@ PNocle SyntaxisAnalyser::parse_identificator(){
       return parse_function(ident, LT_NONE);
     }
   }
+  if (next == LT_NEW_LINE){
+    next = searcher.next();
+  }
   if (next == LT_OP){
     searcher.next();
     return parse_function(ident, LT_CP);
@@ -213,6 +274,7 @@ bool SyntaxisAnalyser::require_lexeme(LexemeType lt){
 PNocle SyntaxisAnalyser::parse_simple_statment(PSymbolTable t){
   PNocle temp = parse_expr();
   Lexeme cur = searcher.get_current();
+  // cur.print();
   while (operation_binary_right[cur.get_str()]){
     searcher.next();
     temp = PNocle(new NocleBinaryRight(cur, temp, parse_simple_statment()));

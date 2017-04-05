@@ -31,25 +31,33 @@ namespace Symbol{
 
   class Type: public Base{
   public:
-    Type();
+    Type(){};
     Type(std::string);
   };
 
   class Integer: public Type{
-
+  public:
+    Integer(): Type("Int"){};
   };
 
   class Float: public Type{
-
+  public:
+    Float(): Type("Float"){};
   };
 
   class String: public Type{
+  public:
+    String(): Type("String"){};
+  };
 
+  class Bool: public Type{
+  public:
+    Bool(): Type("Bool"){};
   };
 
   class Reference: public Type{
   public:
-    Reference();
+    Reference(){};
     Reference(std::string name, PType t);
   private:
     PType type;
@@ -57,33 +65,33 @@ namespace Symbol{
 
   class Array: public Type{
   public:
-    Array();
-    Array(std::string name, PType type, int c);
+    Array(PType t, int c): type(t), count(c){};
   private:
-    int count;
     PType type;
+    int count;
   };
 
   class Alias: public Type{
   public:
-    Alias();
-    Alias(std::string name, PType type);
+    Alias(){};
+    Alias(std::string name, PType t): Type(name), type(t){};
   private:
     PType type;
   };
 
   class Variable: public Base{
   public:
-    Variable();
+    Variable(){};
     Variable(std::string name, PType t);
   private:
     PType type;
   };
 
-  class Const: public Base{
+  class Const: public Variable{
   public:
     Const();
-    Const(std::string name, PType type, Lexeme value);
+    Const(std::string name, PType t, Lexeme val):
+      Variable(name, t), value(val){};
   private:
     PType type;
     Lexeme value;
