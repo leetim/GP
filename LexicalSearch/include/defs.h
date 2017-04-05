@@ -39,6 +39,7 @@ enum LexemeType{
   LT_DO,
   LT_FOR,
   LT_IF,
+  LT_ELSE,
   LT_WHILE,
   LT_REF,
   LT_RETURN,
@@ -52,7 +53,8 @@ enum LexemeType{
   LT_NULL,
   LT_CONST,
   LT_ARROW,
-  LT_ASSIGMENT
+  LT_ASSIGMENT,
+  LT_COLON
   // LT_
 };
 
@@ -141,6 +143,13 @@ namespace Errors{
     ClosingParenthesisNotFound(){};
     ClosingParenthesisNotFound(Lexeme l): Base_lexeme_error(l, "Closing parenthesis not found"){};
     Lexeme lex;
+  };
+
+  class NoneInSymbolTable{
+  public:
+    NoneInSymbolTable(){};
+    NoneInSymbolTable(std::string _name): name(_name){};
+    std::string name;
   };
 
 };

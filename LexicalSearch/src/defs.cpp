@@ -52,6 +52,8 @@ static map<LexemeType, string> types = {
   {LT_CONST, "KEY_WORD"},
   {LT_ARROW, "OPERATOR"},
   {LT_ASSIGMENT, "OPERATOR"},
+  {LT_COLON, "OPERATOR"},
+  {LT_ELSE, "KEY_WORD"}
 };
 
 set<string> key_words = {
@@ -73,7 +75,8 @@ set<string> key_words = {
   "true",
   "false",
   "null",
-  "const"
+  "const",
+  "else"
 };
 
 map<string, LexemeType> types_key_words = {
@@ -83,6 +86,7 @@ map<string, LexemeType> types_key_words = {
   {"]", LT_CSB},
   {"{", LT_OB},
   {"}", LT_CB},
+  {":", LT_COLON},
   {"type", LT_TYPE},
   {"var", LT_VAR},
   {"def", LT_DEF},
@@ -102,6 +106,7 @@ map<string, LexemeType> types_key_words = {
   {"false", LT_FALSE},
   {"null", LT_NULL},
   {"const", LT_CONST},
+  {"else", LT_ELSE},
   {"->", LT_ARROW},
   {"=", LT_ASSIGMENT},
   {"+=", LT_ASSIGMENT},
@@ -180,6 +185,8 @@ bool Lexeme::is_leteral(){
     case LT_INT:
     case LT_FLOAT:
     case LT_STRING:
+    case LT_TRUE:
+    case LT_FALSE:
       return true;
     default:
       return false;
