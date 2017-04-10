@@ -4,6 +4,9 @@ project(GP_main)
 add_definitions(-Wall -ansi -pthread -std=c++11 -Wall)
 set(CMAKE_EXE_LINKER_FLAGS "-pthread")
 
+set(CMAKE_C_COMILER gcc)
+set(CMAKE_CXX_COMILER g++)
+
 #Включение тестов
 enable_testing()
 

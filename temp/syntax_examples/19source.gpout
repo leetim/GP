@@ -1,10 +1,10 @@
 +
-|___function
+|___function_call
     |___a
-    |___function
+    |___function_call
         |___b
         |___$c
-|___function
+|___function_call
     |___d
     |___+
         |___$e

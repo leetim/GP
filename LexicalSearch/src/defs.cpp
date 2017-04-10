@@ -49,11 +49,16 @@ static map<LexemeType, string> types = {
   {LT_TRUE, "KEY_WORD"},
   {LT_FALSE, "KEY_WORD"},
   {LT_NULL, "KEY_WORD"},
-  {LT_CONST, "KEY_WORD"},
+  {LT_LET, "KEY_WORD"},
   {LT_ARROW, "OPERATOR"},
   {LT_ASSIGMENT, "OPERATOR"},
   {LT_COLON, "OPERATOR"},
-  {LT_ELSE, "KEY_WORD"}
+  {LT_ELSE, "KEY_WORD"},
+  {LT_COMMA, "COMMA"},
+  {LT_RANGE, "OPERATOR"},
+  {LT_OPEN_RANGE, "OPERATOR"},
+  {LT_PUTS, "KEY_WORD"},
+  {LT_PRINT, "KEY_WORD"}
 };
 
 set<string> key_words = {
@@ -75,8 +80,10 @@ set<string> key_words = {
   "true",
   "false",
   "null",
-  "const",
-  "else"
+  "let",
+  "else",
+  "puts",
+  "print"
 };
 
 map<string, LexemeType> types_key_words = {
@@ -105,7 +112,7 @@ map<string, LexemeType> types_key_words = {
   {"true", LT_TRUE},
   {"false", LT_FALSE},
   {"null", LT_NULL},
-  {"const", LT_CONST},
+  {"let", LT_LET},
   {"else", LT_ELSE},
   {"->", LT_ARROW},
   {"=", LT_ASSIGMENT},
@@ -117,6 +124,11 @@ map<string, LexemeType> types_key_words = {
   {"|=", LT_ASSIGMENT},
   {"&=", LT_ASSIGMENT},
   {"^=", LT_ASSIGMENT},
+  {",", LT_COMMA},
+  {"...", LT_RANGE},
+  {"..", LT_OPEN_RANGE},
+  {"puts", LT_PUTS},
+  {"print", LT_PRINT}
 };
 
 ////////////////////////////////////////////////////////////////////////////////

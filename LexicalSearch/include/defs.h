@@ -51,10 +51,15 @@ enum LexemeType{
   LT_TRUE,
   LT_FALSE,
   LT_NULL,
-  LT_CONST,
+  LT_LET,
   LT_ARROW,
   LT_ASSIGMENT,
-  LT_COLON
+  LT_COLON,
+  LT_COMMA,
+  LT_RANGE,
+  LT_OPEN_RANGE,
+  LT_PUTS,
+  LT_PRINT
   // LT_
 };
 
@@ -143,6 +148,23 @@ namespace Errors{
     ClosingParenthesisNotFound(){};
     ClosingParenthesisNotFound(Lexeme l): Base_lexeme_error(l, "Closing parenthesis not found"){};
     Lexeme lex;
+  };
+
+  class TypeError: public Base_lexeme_error{
+  public:
+    TypeError(){};
+    TypeError(Lexeme l): Base_lexeme_error(l, "TypeError"){};
+    Lexeme lex;
+  };
+
+  class SymbolError{
+  public:
+    SymbolError(){};
+    SymbolError(std::string vn): var_name(vn){};
+    void print(){
+      std::cout << var_name << " already in the symbol table" << std::endl;
+    };
+    std::string var_name;
   };
 
   class NoneInSymbolTable{

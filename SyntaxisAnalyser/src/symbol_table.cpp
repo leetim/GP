@@ -8,10 +8,12 @@ using namespace std;
 //SymbolTable
 
 map<string, PType> base_types = {
+  {"Void", PType(new Void)},
   {"Int", PType(new Integer)},
   {"Float", PType(new Float)},
   {"String", PType(new String)},
-  {"Bool", PType(new Bool)}
+  {"Bool", PType(new Bool)},
+  {"Range", PType(new Range)}
 };
 
 SymbolTable::SymbolTable(){
@@ -24,6 +26,10 @@ SymbolTable::SymbolTable(PSymbolTable hl){
 
 void SymbolTable::add_symbol(Symbol::PBase arg){
   // cout << arg->get_name() << endl;
+  if (map_symbs[arg->get_name()]){
+    // cout << arg->get_name() << endl;
+    throw Errors::SymbolError(arg->get_name());
+  }
   vect_symbs.push_back(arg);
   map_symbs[arg->get_name()] = arg;
 }
@@ -47,10 +53,11 @@ PBase SymbolTable::operator[](int ind){
   return this->get_symbol(ind);
 }
 
-
 Symbol::PType SymbolTable::get_type_from_str(string str){
   if (base_types[str] == NULL){
-    return static_pointer_cast<Type>(this->get_symbol(str));
+    PBase symb = this->get_symbol(str);
+    // if (symb.get_base_type())
+    return static_pointer_cast<Type>(symb);
   }
   else{
     return base_types[str];
@@ -68,7 +75,7 @@ unsigned int SymbolTable::get_count(){
 void SymbolTable::print(int lvl){
   cout << lvl << endl;
   for (auto i: vect_symbs){
-    cout << i->get_name() << endl;
+    cout << '\t' << i->get_name() << endl;
   }
   if (high_lvl){
     high_lvl->print(lvl+1);

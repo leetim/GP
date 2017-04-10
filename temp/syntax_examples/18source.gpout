@@ -1,6 +1,6 @@
-function
+function_call
 |___a
-|___function
+|___function_call
     |___b
     |___$c
     |___$d

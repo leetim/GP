@@ -2,6 +2,7 @@
 #include <iostream>
 
 using namespace std;
+using namespace Symbol;
 
 ////////////////////////////////////////////////////////////////////////////////
 //Nocle
@@ -14,8 +15,8 @@ Lexeme Nocle::get_lexeme(){
   return lexeme;
 }
 
-NocleType Nocle::get_type(){
-  return NT_BASE;
+PType Nocle::get_type(PSymbolTable t){
+  return PType(new Void());
 }
 
 string Nocle::get_str(){
@@ -48,8 +49,8 @@ bool Nocle::check_types(PSymbolTable){
 ////////////////////////////////////////////////////////////////////////////////
 //NocleTerminate
 
-NocleType NocleTerminate::get_type(){
-  return NT_TERMINATE;
+PType NocleTerminate::get_type(PSymbolTable t){
+  return t->get_symbol(get_lexeme().get_str())->get_type();
 }
 
 void NocleTerminate::get_str(stringstream& ss, int depth){
@@ -143,45 +144,65 @@ void NocleMulty::get_str(std::stringstream& ss, int depth){
   }
 }
 
-NocleType NocleMulty::get_type(){
-  return NT_EXPR;
+PType NocleMulty::get_type(PSymbolTable t){
+  return PType(new Void());;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 //NocleUnaryPrefix
 
-NocleType NocleUnaryPrefix::get_type(){
-  return NT_UNARY_PREFIX;
+PType NocleUnaryPrefix::get_type(PSymbolTable t){
+  return get_child()->get_type(t);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 //NocleUnaryPostfix
 
-NocleType NocleUnaryPostfix::get_type(){
-  return NT_UNARY_POSTFIX;
+PType NocleUnaryPostfix::get_type(PSymbolTable t){
+  return get_child()->get_type(t);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 //NocleBinaryLeft
 
-NocleType NocleBinaryLeft::get_type(){
-  return NT_BINARY_LEFT;
+PType NocleBinaryLeft::get_type(PSymbolTable t){
+  PType tl = get_child1()->get_type(t);
+  PType tr = get_child2()->get_type(t);
+  if (tl->compare(tr)){
+    return tl;
+  }
+  else{
+    //try cast
+    // throw Errors::;
+  }
+  return PType(new Void());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 //NocleBinaryRight
 
-NocleType NocleBinaryRight::get_type(){
-  return NT_BINARY_RIGHT;
+PType NocleBinaryRight::get_type(PSymbolTable t){
+  return PType(new Void());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 //NocleBlock
 
 bool NocleBlock::check_types(PSymbolTable t){
-  bool temp = true;
   for (auto i: children){
-    temp = temp && i->check_types(t);
+    if (!i->check_types(t)){
+      return false;
+      // throw Errors::TypeError();
+    }
   }
-  return false;
+  return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//Symbol::Procedure
+
+Procedure::Procedure(std::string name, PSymbolTable st, PNocle b){
+  this->set_name(name);
+  stable = st;
+  block = b;
 }
