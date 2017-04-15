@@ -8,13 +8,20 @@ using namespace std;
 //SymbolTable
 
 map<string, PType> base_types = {
-  {"Void", PType(new Void)},
-  {"Int", PType(new Integer)},
-  {"Float", PType(new Float)},
-  {"String", PType(new String)},
-  {"Bool", PType(new Bool)},
-  {"Range", PType(new Range)}
+  {"Void", PType(new Void())},
+  {"Int", PType(new Integer())},
+  {"Float", PType(new Float())},
+  {"String", PType(new String())},
+  {"Bool", PType(new Bool())},
+  {"Range", PType(new Range())}
 };
+
+Symbol::PType get_base_type_from_str(string str){
+  if (base_types[str]){
+    return base_types[str];
+  }
+  throw NULL;
+}
 
 SymbolTable::SymbolTable(){
   high_lvl = PSymbolTable();
@@ -54,13 +61,12 @@ PBase SymbolTable::operator[](int ind){
 }
 
 Symbol::PType SymbolTable::get_type_from_str(string str){
-  if (base_types[str] == NULL){
-    PBase symb = this->get_symbol(str);
-    // if (symb.get_base_type())
-    return static_pointer_cast<Type>(symb);
+  try{
+    return get_base_type_from_str(str);
   }
-  else{
-    return base_types[str];
+  catch(...){
+    PBase symb = this->get_symbol(str);
+    return static_pointer_cast<Type>(symb);
   }
 }
 
@@ -75,7 +81,7 @@ unsigned int SymbolTable::get_count(){
 void SymbolTable::print(int lvl){
   cout << lvl << endl;
   for (auto i: vect_symbs){
-    cout << '\t' << i->get_name() << endl;
+    cout << '\t' << i->get_name() << " " << i->get_type_name() << endl;
   }
   if (high_lvl){
     high_lvl->print(lvl+1);

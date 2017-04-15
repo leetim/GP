@@ -50,7 +50,7 @@ int main(int argc, char** argv){
   }
   SyntaxisAnalyser sa(str);
   try{
-    PNocle pn = sa.get_tree();
+    PNocle pn = sa.parse_program();
     cout << pn->get_str() << endl;
   }
   catch(Errors::Illegal_expression e){

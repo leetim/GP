@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 
 project(GP_main)
-add_definitions(-Wall -ansi -pthread -std=c++11 -Wall)
+add_definitions(-Wall -ansi -pthread -std=c++11 -Wall -g)
 set(CMAKE_EXE_LINKER_FLAGS "-pthread")
 
 set(CMAKE_C_COMILER gcc)

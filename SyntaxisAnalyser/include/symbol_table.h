@@ -25,3 +25,5 @@ private:
   std::vector<Symbol::PBase> vect_symbs;
   std::map<std::string, Symbol::PBase> map_symbs;
 };
+
+Symbol::PType get_base_type_from_str(std::string str);

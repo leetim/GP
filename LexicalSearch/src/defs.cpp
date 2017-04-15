@@ -58,7 +58,9 @@ static map<LexemeType, string> types = {
   {LT_RANGE, "OPERATOR"},
   {LT_OPEN_RANGE, "OPERATOR"},
   {LT_PUTS, "KEY_WORD"},
-  {LT_PRINT, "KEY_WORD"}
+  {LT_PRINT, "KEY_WORD"},
+  {LT_ARRAY_ELEMENT, "ARRAY_ELEMENT"},
+  {LT_CLASS, "KEY_WORD"}
 };
 
 set<string> key_words = {
@@ -83,7 +85,8 @@ set<string> key_words = {
   "let",
   "else",
   "puts",
-  "print"
+  "print",
+  "class"
 };
 
 map<string, LexemeType> types_key_words = {
@@ -128,13 +131,14 @@ map<string, LexemeType> types_key_words = {
   {"...", LT_RANGE},
   {"..", LT_OPEN_RANGE},
   {"puts", LT_PUTS},
-  {"print", LT_PRINT}
+  {"print", LT_PRINT},
+  {"class", LT_CLASS}
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 //Lexeme
 
-string Lexeme::get_str(){
+string& Lexeme::get_str(){
   return str;
 }
 

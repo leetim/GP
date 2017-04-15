@@ -59,7 +59,9 @@ enum LexemeType{
   LT_RANGE,
   LT_OPEN_RANGE,
   LT_PUTS,
-  LT_PRINT
+  LT_PRINT,
+  LT_ARRAY_ELEMENT,
+  LT_CLASS
   // LT_
 };
 
@@ -76,7 +78,7 @@ class Lexeme{
 public:
   Lexeme(): str(), row(), col(), type(){};
   Lexeme(std::string s, int _row, int _col, LexemeType _type): str(s), row(_row), col(_col), type(_type){};
-  std::string get_str();
+  std::string& get_str();
   int get_row();
   int get_col();
   int get_type();
@@ -147,14 +149,21 @@ namespace Errors{
   public:
     ClosingParenthesisNotFound(){};
     ClosingParenthesisNotFound(Lexeme l): Base_lexeme_error(l, "Closing parenthesis not found"){};
-    Lexeme lex;
+    // Lexeme lex;
   };
 
   class TypeError: public Base_lexeme_error{
   public:
     TypeError(){};
     TypeError(Lexeme l): Base_lexeme_error(l, "TypeError"){};
-    Lexeme lex;
+    // Lexeme lex;
+  };
+
+  class WrongTypeForBinaryOperator: public Base_lexeme_error{
+  public:
+    WrongTypeForBinaryOperator(){};
+    WrongTypeForBinaryOperator(Lexeme l): Base_lexeme_error(l, "Wrong Types"){};
+    // Lexeme lex;
   };
 
   class SymbolError{
@@ -172,6 +181,13 @@ namespace Errors{
     NoneInSymbolTable(){};
     NoneInSymbolTable(std::string _name): name(_name){};
     std::string name;
+  };
+
+  class WrongType{
+  public:
+    WrongType(){}
+    WrongType(Lexeme lex): lexeme(lex){};
+    Lexeme lexeme;
   };
 
 };

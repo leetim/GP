@@ -10,8 +10,8 @@ public:
   SyntaxisAnalyser(){};
   SyntaxisAnalyser(std::string file_name): searcher(file_name){};
   PNocle get_tree();
-private:
   PNocle parse_program();
+private:
   PNocle parse_expr(int prioryty = 1);
   PNocle parse_factor();
   PNocle parse_identificator();
@@ -23,9 +23,10 @@ private:
   PNocle parse_while_cycle(PSymbolTable t = NULL);
   PNocle parse_for_cycle(PSymbolTable t = NULL);
   PNocle parse_if(PSymbolTable t = NULL);
-  PNocle parse_def_variable(PSymbolTable t = NULL);
   PNocle parse_def_function(PSymbolTable t = NULL);
+  PNocle parse_type(PSymbolTable t = NULL);
 
+  PNocle parse_def_variable(PSymbolTable t = NULL);
   bool require_lexeme(LexemeType lt);
   bool check_priority(Lexeme lex, int priority);
   static int max_priority;

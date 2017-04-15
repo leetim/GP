@@ -30,7 +30,7 @@ namespace Symbol{
   class Bool;
   class Range;
   class Record;
-  class Reference;
+  class Class;
   class Array;
   class Alias;
   class Variable;
@@ -46,7 +46,7 @@ namespace Symbol{
   typedef std::shared_ptr<Bool> PBool;
   typedef std::shared_ptr<Range> PRange;
   typedef std::shared_ptr<Record> PRecord;
-  typedef std::shared_ptr<Reference> PReference;
+  typedef std::shared_ptr<Class> PClass;
   typedef std::shared_ptr<Array> PArray;
   typedef std::shared_ptr<Alias> PAlias;
 
@@ -55,6 +55,7 @@ namespace Symbol{
     virtual std::string get_name();
     void set_name(std::string);
     virtual PType get_type();
+    virtual std::string get_type_name();
   private:
     std::string name;
   };
@@ -65,7 +66,10 @@ namespace Symbol{
     Type(std::string);
     Type(std::string, BaseSymbolType bst);
     BaseSymbolType get_base_type();
+    PType get_type();
+    bool is_casted_to(PType t);
     virtual bool compare(PType t1);
+    virtual std::string get_type_name();
   private:
     BaseSymbolType base_type;
   };
@@ -105,18 +109,10 @@ namespace Symbol{
     Range(): Type("Range", BST_RANGE){};
   };
 
-  class Reference: public Type{
-  public:
-    Reference(){};
-    Reference(PType t): Type("Ref", BST_REFERENCE), type(t){};
-    bool compare(PType t1);
-  private:
-    PType type;
-  };
-
   class Array: public Type{
   public:
-    Array(PType t, int c): Type("Array", BST_REFERENCE), type(t), count(c){};
+    Array(PType t, int c): Type("Array", BST_ARRAY), type(t), count(c){};
+    std::string get_name();
     bool compare(PType t1);
   private:
     PType type;
@@ -130,24 +126,5 @@ namespace Symbol{
     bool compare(PType t1);
   private:
     PType type;
-  };
-
-  class Variable: public Base{
-  public:
-    Variable(){};
-    Variable(std::string name, PType t);
-    PType get_type();
-  private:
-    PType type;
-  };
-
-  class Const: public Variable{
-  public:
-    Const();
-    Const(std::string name, PType t, Lexeme val):
-      Variable(name, t), value(val){};
-  private:
-    PType type;
-    Lexeme value;
   };
 };

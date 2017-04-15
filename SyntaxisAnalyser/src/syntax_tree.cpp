@@ -1,8 +1,11 @@
 #include <syntax_tree.h>
 #include <iostream>
+#include <map>
 
 using namespace std;
 using namespace Symbol;
+
+map <BaseSymbolType, string> type_name;
 
 ////////////////////////////////////////////////////////////////////////////////
 //Nocle
@@ -15,7 +18,7 @@ Lexeme Nocle::get_lexeme(){
   return lexeme;
 }
 
-PType Nocle::get_type(PSymbolTable t){
+PType Nocle::get_result_type(PSymbolTable t){
   return PType(new Void());
 }
 
@@ -49,7 +52,7 @@ bool Nocle::check_types(PSymbolTable){
 ////////////////////////////////////////////////////////////////////////////////
 //NocleTerminate
 
-PType NocleTerminate::get_type(PSymbolTable t){
+PType NocleTerminate::get_result_type(PSymbolTable t){
   return t->get_symbol(get_lexeme().get_str())->get_type();
 }
 
@@ -62,6 +65,41 @@ void NocleTerminate::get_str(stringstream& ss, int depth){
     ss << string((depth - 1)*4, ' ') << "|___" << get_lexeme().get_value() << "\n";
   }
   // return get_lexeme().get_value();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//NocleInteger
+
+PType NocleInteger::get_result_type(PSymbolTable t){
+    return t->get_type_from_str("Int");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//NocleFloat
+
+PType NocleFloat::get_result_type(PSymbolTable t){
+    return t->get_type_from_str("Float");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//NocleString
+
+PType NocleString::get_result_type(PSymbolTable t){
+    return t->get_type_from_str("String");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//NocleVariable
+
+Symbol::PType NocleVariable::get_result_type(PSymbolTable t){
+  return t->get_symbol(get_lexeme().get_str())->get_type();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//NocleTypeName
+
+Symbol::PType NocleTypeName::get_result_type(PSymbolTable t){
+  return t->get_type_from_str(get_lexeme().get_str());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -86,6 +124,31 @@ void NocleUnary::get_str(stringstream& ss, int depth){
   // return get_lexeme().get_value();
 }
 
+Symbol::PType NocleUnary::get_result_type(PSymbolTable t){
+  return get_child()->get_result_type(t);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//NocleUnaryCast
+
+// NocleUnaryCast(Lexeme lex, PNocle ch = NULL){
+//   set_child(ch);
+//   cast_to =
+// }
+
+NocleUnaryCast::NocleUnaryCast(Symbol::PType t, PNocle ch){
+  set_child(ch);
+  cast_to = t;
+  Lexeme l = ch->get_lexeme();
+  l.get_str() = "cast_to_" + t->get_type_name();
+  set_lexeme(l);
+}
+
+
+Symbol::PType NocleUnaryCast::get_result_type(PSymbolTable t){
+  return cast_to;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //NocleBinary
 
@@ -105,6 +168,11 @@ PNocle NocleBinary::get_child2(){
   return child2;
 }
 
+bool NocleBinary::check_child_type(){
+  return true;
+}
+
+
 void NocleBinary::get_str(stringstream& ss, int depth){
   if (depth == 0){
     ss << get_lexeme().get_value() << "\n";
@@ -117,6 +185,108 @@ void NocleBinary::get_str(stringstream& ss, int depth){
   // return get_lexeme().get_value();
 }
 
+PType NocleBinary::get_result_type(PSymbolTable t){
+  PType tl = get_child1()->get_result_type(t);
+  PType tr = get_child2()->get_result_type(t);
+  if (!check_child_type(tl->get_base_type())){
+    throw Errors::WrongTypeForBinaryOperator(get_lexeme());
+  }
+  if (tl->compare(tr)){
+    return tl;
+  }
+  else{
+    if (tl->is_casted_to(tr)){
+      set_child1(PNocle(new NocleUnaryCast(tr, get_child1())));
+      return tl;
+    }
+    throw Errors::WrongTypeForBinaryOperator(get_lexeme());
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//NocleBinaryArithmetic
+
+bool NocleBinaryArithmetic::check_child_type(BaseSymbolType bst){
+  return bst == BST_INTEGER || bst == BST_FLOAT;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//NocleBinaryBitwice
+
+bool NocleBinaryBitwice::check_child_type(BaseSymbolType bst){
+  return bst == BST_INTEGER;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//NocleBinaryLogic
+
+bool NocleBinaryLogic::check_child_type(BaseSymbolType bst){
+  return bst == BST_BOOL;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//NocleBinaryOther
+
+PType NocleBinaryOther::get_result_type(PSymbolTable t){
+  PType tl = get_child1()->get_result_type(t);
+  PType tr = get_child2()->get_result_type(t);
+  if (!check_child_type(tl->get_base_type())){
+    throw Errors::WrongTypeForBinaryOperator(get_lexeme());
+  }
+  if (tl->compare(tr)){
+    return result_type;
+  }
+  else{
+    if (tr->is_casted_to(tl)){
+      set_child2(PNocle(new NocleUnaryCast(tr, get_child2())));
+      return result_type;
+    }
+    throw Errors::WrongTypeForBinaryOperator(get_lexeme());
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//NocleBinaryRange
+
+NocleBinaryRange::NocleBinaryRange(Lexeme lex, PNocle ch1, PNocle ch2){
+  set_lexeme(lex);
+  set_child1(ch1);
+  set_child2(ch2);
+  result_type = get_base_type_from_str("Range");
+}
+
+bool NocleBinaryRange::check_child_type(BaseSymbolType bst){
+  return bst == BST_INTEGER;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//NocleBinaryPoint
+
+bool NocleBinaryPoint::check_child_type(BaseSymbolType bst){
+  return bst == BST_RECORD;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//NocleArrayElement
+
+
+PType NocleArrayElement::get_result_type(PSymbolTable t){
+  PType tl = get_child1()->get_result_type(t);
+  PType tr = get_child2()->get_result_type(t);
+  if (!check_child_type(tl->get_base_type())){
+    throw Errors::WrongTypeForBinaryOperator(get_lexeme());
+  }
+  if (tl->compare(tr)){
+    return result_type;
+  }
+  else{
+    if (tr->is_casted_to(tl)){
+      set_child2(PNocle(new NocleUnaryCast(tr, get_child2())));
+      return result_type;
+    }
+    throw Errors::WrongTypeForBinaryOperator(get_lexeme());
+  }
+}
 ////////////////////////////////////////////////////////////////////////////////
 //NocleMulty
 
@@ -144,44 +314,18 @@ void NocleMulty::get_str(std::stringstream& ss, int depth){
   }
 }
 
-PType NocleMulty::get_type(PSymbolTable t){
+PType NocleMulty::get_result_type(PSymbolTable t){
   return PType(new Void());;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//NocleUnaryPrefix
-
-PType NocleUnaryPrefix::get_type(PSymbolTable t){
-  return get_child()->get_type(t);
-}
 
 ////////////////////////////////////////////////////////////////////////////////
-//NocleUnaryPostfix
-
-PType NocleUnaryPostfix::get_type(PSymbolTable t){
-  return get_child()->get_type(t);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//NocleBinaryLeft
-
-PType NocleBinaryLeft::get_type(PSymbolTable t){
-  PType tl = get_child1()->get_type(t);
-  PType tr = get_child2()->get_type(t);
-  if (tl->compare(tr)){
-    return tl;
-  }
-  else{
-    //try cast
-    // throw Errors::;
-  }
-  return PType(new Void());
-}
+//
 
 ////////////////////////////////////////////////////////////////////////////////
 //NocleBinaryRight
 
-PType NocleBinaryRight::get_type(PSymbolTable t){
+PType NocleBinaryRight::get_result_type(PSymbolTable t){
   return PType(new Void());
 }
 
@@ -198,11 +342,49 @@ bool NocleBlock::check_types(PSymbolTable t){
   return true;
 }
 
+void NocleBlock::print_table(){
+  table->print();
+}
+
+////////////////////////////////////////////////////////////////////
+//Variable
+
+
+Variable::Variable(std::string name, PType t){
+  set_name(name);
+  type = t;
+}
+
+Variable::Variable(std::string name, PType t, PNocle init){
+  set_name(name);
+  // cout << t->get_name() << endl;
+  type = t;
+  if (init){
+    initialization = init;
+  }
+  else{
+    throw 1;
+  }
+}
+
+string Variable::get_type_name(){
+  // stringstream ss;
+  // cout << type->get_name() << endl;
+  return type->get_name();
+}
+
+PType Variable::get_type(){
+  return type;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //Symbol::Procedure
 
-Procedure::Procedure(std::string name, PSymbolTable st, PNocle b){
+Procedure::Procedure(std::string name, PSymbolTable st){
   this->set_name(name);
   stable = st;
+}
+
+void Procedure::set_block(PNocle b){
   block = b;
 }

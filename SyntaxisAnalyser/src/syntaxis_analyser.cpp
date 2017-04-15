@@ -64,7 +64,7 @@ PNocle get_binary_Nocle(Lexeme lex, PNocle left, PNocle right){
       noc = new NocleBinaryRange(lex, left, right);
       break;
     default:
-      noc = new NocleBinaryLeft(lex, left, right);
+      noc = new NocleBinary(lex, left, right);
   }
   return PNocle(noc);
 }
@@ -77,6 +77,36 @@ PSymbolTable get_global_table(){
   return global;
 }
 
+int get_int_from_lexeme(Lexeme lex){
+  if (lex.get_type() == LT_INT){
+    stringstream ss;
+    ss << lex.get_str();
+    int res;
+    ss >> res;
+    return res;
+  }
+  throw Errors::WrongType(lex);
+}
+
+Symbol::PType get_type_from_nocle(PNocle node, PSymbolTable t){
+  NocleBinary* nb = (NocleBinary*)node.get();
+  if (node->get_lexeme().get_type() == LT_ARRAY_ELEMENT){
+    return Symbol::PType(new Symbol::Array(
+      get_type_from_nocle(nb->get_child1(), t),
+      get_int_from_lexeme(nb->get_child2()->get_lexeme())
+    ));
+  }
+  else{
+    if (node->get_lexeme().get_type() == LT_TYPE_NAME){
+      return t->get_type_from_str(node->get_lexeme().get_str());
+    }
+    else{
+      throw Errors::WrongType(node->get_lexeme());
+    }
+  }
+  return NULL;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //SyntaxisAnalyser
 
@@ -86,12 +116,44 @@ PNocle SyntaxisAnalyser::get_tree(){
   // searcher.next();
   // parse_def_function(st);
   PNocle temp = parse_statment(st);
-  // st->print();
+  st->print();
   return temp;
 }
 
 PNocle SyntaxisAnalyser::parse_program(){
-  return PNocle();
+  searcher.next();
+  PSymbolTable st = get_global_table();
+  NocleBlock* block = new NocleBlock(st);
+  // searcher.get_current().print();
+  while (true){
+    PNocle temp;
+    switch (searcher.get_current().get_type()){
+      case LT_TYPE:
+        searcher.next();
+        temp = parse_type(st);
+        break;
+      case LT_CLASS:
+      case LT_DEF:
+        searcher.next();
+        temp = parse_def_function(st);
+        break;
+      case LT_VAR:
+      case LT_LET:
+      case LT_REF:
+        searcher.next();
+        temp = parse_def_variable(st);
+        break;
+      case LT_DO:
+        searcher.next();
+        temp = parse_block(st);
+        break;
+      case LT_EOF:
+        block->print_table();
+        return PNocle(block);
+    }
+    block->add_child(temp);
+  }
+  throw PNocle();
 }
 
 PNocle SyntaxisAnalyser::parse_statment(PSymbolTable t){
@@ -112,6 +174,8 @@ PNocle SyntaxisAnalyser::parse_statment(PSymbolTable t){
     case LT_IF:
       temp = parse_if(t);
       break;
+    case LT_LET:
+    case LT_REF:
     case LT_VAR:
       searcher.next();
       temp = parse_def_variable(t);
@@ -130,6 +194,18 @@ PNocle SyntaxisAnalyser::parse_statment(PSymbolTable t){
   }
   // searcher.get_current().print();
   return temp;
+}
+
+PNocle SyntaxisAnalyser::parse_type(PSymbolTable t){
+  Lexeme name = searcher.get_current();
+  Lexeme assigment = searcher.next();
+  require_lexeme(LT_ASSIGMENT);
+  searcher.next();
+  PNocle type = parse_expr();
+  // searcher.get_current().print();
+  Symbol::Alias* alias = new Symbol::Alias(name.get_str(), get_type_from_nocle(type, t));
+  t->add_symbol(Symbol::PBase(alias));
+  return PNocle(new Nocle());
 }
 
 PNocle SyntaxisAnalyser::parse_block(PSymbolTable t, LexemeType end){
@@ -165,7 +241,7 @@ PNocle SyntaxisAnalyser::parse_for_cycle(PSymbolTable t){
   searcher.next();
   PNocle range = parse_expr();
   st->add_symbol(Symbol::PBase(
-    new Symbol::Variable(var.get_str(), range->get_type(t))));
+    new Symbol::Variable(var.get_str(), range->get_result_type(t))));
   // Добавить типы в таблицу символов
   PNocle block = parse_block(st);
   NocleFor* nf = new NocleFor(st, range, block);
@@ -194,18 +270,21 @@ PNocle SyntaxisAnalyser::parse_def_variable(PSymbolTable t){
   require_lexeme(LT_VARIABLE);
   searcher.next();
   require_lexeme(LT_COLON);
-  Lexeme type_name = searcher.next();
-  Lexeme assigment = searcher.next();
-  Symbol::Variable* var = new Symbol::Variable(name.get_str(), t->get_type_from_str(type_name.get_str()));
-  t->add_symbol(Symbol::PBase(var));
-  // cout << t->get_count() << endl;
+  searcher.next();
+  PNocle type = parse_expr();
+  Lexeme assigment = searcher.get_current();
+  Symbol::Variable* var;
+  // searcher.get_current().print();
   if (assigment.get_str() == "="){
     searcher.next();
-    PNocle expr = parse_expr();
-    // cout << expr->get_str() << endl;
-    PNocle term(new NocleTerminate(name));
-    return PNocle(new NocleBinary(assigment, term, expr));
+    PNocle expr = parse_simple_statment();
+    var = new Symbol::Variable(name.get_str(), get_type_from_nocle(type, t), expr);
   }
+  else{
+    var = new Symbol::Variable(name.get_str(), get_type_from_nocle(type, t));
+  }
+  t->add_symbol(Symbol::PBase(var));
+  // cout << t->get_count() << endl;
   return PNocle(new Nocle());
 }
 
@@ -243,19 +322,19 @@ PNocle SyntaxisAnalyser::parse_def_function(PSymbolTable t){
       searcher.next();
     }
   }
-
-  PNocle block = parse_block(func_table);
-  Symbol::Base* func;
+  Symbol::Procedure* func;
   if (func_flag){
-    func = new Symbol::Function(name.get_str(), func_table, block);
+    func = new Symbol::Function(name.get_str(), func_table);
   }
   else{
-    func = new Symbol::Procedure(name.get_str(), func_table, block);
+    func = new Symbol::Procedure(name.get_str(), func_table);
   }
+  t->add_symbol(Symbol::PBase(func));
+  PNocle block = parse_block(func_table);
+  func->set_block(block);
   func_table->print();
   cout << block->get_str() << endl;
-  t->add_symbol(Symbol::PBase(func));
-  return block;
+  return PNocle(new Nocle());
 }
 
 PNocle SyntaxisAnalyser::parse_expr(int priority){
@@ -292,7 +371,7 @@ PNocle SyntaxisAnalyser::parse_factor(){
   }
   // cout << cur.get_type() << " " << cur.is_identificator() << endl;
   if (operation_unary_prefix[cur.get_str()]){
-    return PNocle(new NocleUnaryPrefix(cur, parse_factor()));
+    return PNocle(new NocleUnary(cur, parse_factor()));
   }
   // cout << next.get_str() << " " << cur.get_str() << endl;
   if (cur == LT_OP){
@@ -372,6 +451,7 @@ bool SyntaxisAnalyser::require_lexeme(LexemeType lt){
       throw Errors::ClosingParenthesisNotFound(searcher.get_current());
     default:
       cout << lt << endl;
+      searcher.get_current().print();
       throw lt;
   }
 }
@@ -384,7 +464,7 @@ PNocle SyntaxisAnalyser::parse_simple_statment(PSymbolTable t){
 
   while (operation_binary_right[cur.get_str()]){
     searcher.next();
-    temp = PNocle(new NocleBinaryRight(cur, temp, parse_simple_statment()));
+    temp = PNocle(new NocleBinaryAssigment(cur, temp, parse_expr()));
     cur = searcher.get_current();
     // cur.print();
   }
