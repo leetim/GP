@@ -66,7 +66,7 @@ bool Type::is_casted_to(PType t){
   }
   switch (base_type){
     case BST_INTEGER:
-      return bst == BST_FLOAT || bst == BST_STRING;
+      return bst == BST_FLOAT || bst == BST_STRING || bst == BST_BOOL;
     case BST_FLOAT:
       return bst == BST_STRING;
     default:
@@ -75,6 +75,7 @@ bool Type::is_casted_to(PType t){
 }
 
 bool Type::compare(PType t){
+  // cout << "in compare" << endl;
   return t->get_base_type() == base_type;
 };
 
@@ -113,6 +114,10 @@ string Array::get_name(){
   stringstream ss;
   // ss << type->get_name() << "[" << count << "]";
   return ss.str();
+}
+
+PType Array::get_element_type(){
+  return type;
 }
 
 ////////////////////////////////////////////////////////////////////

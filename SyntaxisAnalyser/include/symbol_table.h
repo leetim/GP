@@ -9,6 +9,8 @@ typedef std::shared_ptr<SymbolTable> PSymbolTable;
 
 class SymbolTable{
 public:
+  typedef std::vector<Symbol::PBase>::const_iterator iterator;
+
   SymbolTable();
   SymbolTable(PSymbolTable hl);
   void add_symbol(Symbol::PBase arg);
@@ -17,6 +19,8 @@ public:
   Symbol::PBase get_symbol(std::string);
   Symbol::PBase get_symbol(int);
   Symbol::PType get_type_from_str(std::string);
+  iterator begin() const;
+  iterator end() const;
   void print(int lvl = 0);
   unsigned int get_count();
   // static Symbol::PSymbolTable

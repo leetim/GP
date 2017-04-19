@@ -114,6 +114,7 @@ namespace Symbol{
     Array(PType t, int c): Type("Array", BST_ARRAY), type(t), count(c){};
     std::string get_name();
     bool compare(PType t1);
+    PType get_element_type();
   private:
     PType type;
     int count;

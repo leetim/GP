@@ -249,16 +249,16 @@ PCondition get_newline(){
 void get_operator(PCondition start){
   vector<string> a = {
     "!=",
-    "%=",
-    "**",
-    "--",
-    "++",
+    "%",
+    "*",
+    "-",
+    "+",
     ">>",
     "<<",
     "==",
     ">=",
     "<=",
-    "/=",
+    // "/=",
     "...",
     "&&",
     "||",
@@ -266,11 +266,11 @@ void get_operator(PCondition start){
     // ";",
     ",",
     ":",
-    "+=",
-    "-=",
-    "*=",
-    "|=",
-    "&=",
+    // "+=",
+    // "-=",
+    // "*=",
+    // "|=",
+    // "&=",
     "->"
   };
   for (auto i = a.begin(); i != a.end(); i++){

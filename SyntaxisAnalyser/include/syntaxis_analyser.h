@@ -15,7 +15,7 @@ private:
   PNocle parse_expr(int prioryty = 1);
   PNocle parse_factor();
   PNocle parse_identificator();
-  PNocle parse_function_call(PNocle ident, LexemeType finish);
+  PNocle parse_function_call();
 
   PNocle parse_statment(PSymbolTable t = NULL);
   PNocle parse_simple_statment(PSymbolTable t = NULL);
@@ -25,6 +25,8 @@ private:
   PNocle parse_if(PSymbolTable t = NULL);
   PNocle parse_def_function(PSymbolTable t = NULL);
   PNocle parse_type(PSymbolTable t = NULL);
+  PNocle parse_class(PSymbolTable t);
+  PNocle parse_cast();
 
   PNocle parse_def_variable(PSymbolTable t = NULL);
   bool require_lexeme(LexemeType lt);

@@ -42,14 +42,25 @@ void SymbolTable::add_symbol(Symbol::PBase arg){
 }
 
 Symbol::PBase SymbolTable::get_symbol(std::string ind){
+  // print();
   PBase temp = map_symbs[ind];
-  if (temp == NULL && high_lvl != NULL){
+  // cout << map_symbs.size() << endl;
+  // for (auto i: map_symbs){
+  // cout << (bool)(temp) << (high_lvl != NULL) << endl;
+  // }
+  cout << "YA TUTOCHKI BLYA " << ind << " " << map_symbs.size() << endl;
+  for (auto i: vect_symbs){
+    cout << "\t" << i->get_name() << endl;
+  }
+  if (temp){
+    return map_symbs[ind];
+  }
+  if (high_lvl != NULL){
     return (*high_lvl)[ind];
   }
   else{
     throw Errors::NoneInSymbolTable(ind);
   }
-  return map_symbs[ind];
 }
 
 PBase SymbolTable::operator[](string ind){
@@ -72,6 +83,14 @@ Symbol::PType SymbolTable::get_type_from_str(string str){
 
 Symbol::PBase SymbolTable::get_symbol(int ind){
   return vect_symbs[ind];
+}
+
+SymbolTable::iterator SymbolTable::begin() const{
+  return vect_symbs.begin();
+}
+
+SymbolTable::iterator SymbolTable::end() const{
+  return vect_symbs.end();
 }
 
 unsigned int SymbolTable::get_count(){

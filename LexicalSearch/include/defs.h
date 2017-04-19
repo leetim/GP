@@ -61,7 +61,30 @@ enum LexemeType{
   LT_PUTS,
   LT_PRINT,
   LT_ARRAY_ELEMENT,
-  LT_CLASS
+  LT_CLASS,
+
+  LT_ADD,
+  LT_SUB,
+  LT_MULT,
+  LT_DIV,
+  LT_MOD,
+
+  LT_NOT,
+  LT_BIN_AND,
+  LT_BIN_OR,
+  LT_BIN_XOR,
+  LT_LOG_AND,
+  LT_LOG_OR,
+  LT_LOG_XOR,
+  LT_EQ,
+  LT_NEQ,
+  LT_LT,
+  LT_LTEQ,
+  LT_GT,
+  LT_GTEQ,
+  LT_SHL,
+  LT_SHR,
+  LT_POINT
   // LT_
 };
 
@@ -187,6 +210,48 @@ namespace Errors{
   public:
     WrongType(){}
     WrongType(Lexeme lex): lexeme(lex){};
+    Lexeme lexeme;
+  };
+
+  class NoLValueInAssigment{
+  public:
+    NoLValueInAssigment(){}
+    NoLValueInAssigment(Lexeme lex): lexeme(lex){};
+    Lexeme lexeme;
+  };
+
+  class WrongTypeForAssigmentOperator{
+  public:
+    WrongTypeForAssigmentOperator(){}
+    WrongTypeForAssigmentOperator(Lexeme lex): lexeme(lex){};
+    Lexeme lexeme;
+  };
+
+  class WrongBinaryOperator{
+  public:
+    WrongBinaryOperator(){}
+    WrongBinaryOperator(Lexeme lex): lexeme(lex){};
+    Lexeme lexeme;
+  };
+
+  class WrongTypeOfExprInIf{
+  public:
+    WrongTypeOfExprInIf(){}
+    WrongTypeOfExprInIf(Lexeme lex): lexeme(lex){};
+    Lexeme lexeme;
+  };
+
+  class WrongTypeOfExprInWhile{
+  public:
+    WrongTypeOfExprInWhile(){}
+    WrongTypeOfExprInWhile(Lexeme lex): lexeme(lex){};
+    Lexeme lexeme;
+  };
+
+  class WrongTypeOfExprInFor{
+  public:
+    WrongTypeOfExprInFor(){}
+    WrongTypeOfExprInFor(Lexeme lex): lexeme(lex){};
     Lexeme lexeme;
   };
 

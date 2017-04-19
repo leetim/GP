@@ -31,6 +31,9 @@ public:
   virtual void get_str(std::stringstream& ss, int depth = 0);
   virtual bool check_lvalue(PSymbolTable);
   virtual bool check_types(PSymbolTable);
+protected:
+  bool lvalue_flag = false;
+  bool check_flag = false;
 private:
   Lexeme lexeme;
 };
@@ -56,6 +59,14 @@ public:
   // virtual void get_str(std::stringstream& ss, int depth = 0);
 };
 
+class NocleBool: public NocleTerminate{
+public:
+  NocleBool(): NocleTerminate(){};
+  NocleBool(Lexeme lex): NocleTerminate(lex){};
+  Symbol::PType get_result_type(PSymbolTable t);
+  // virtual void get_str(std::stringstream& ss, int depth = 0);
+};
+
 class NocleFloat: public NocleTerminate{
 public:
   NocleFloat(): NocleTerminate(){};
@@ -77,6 +88,7 @@ public:
   NocleVariable(): NocleTerminate(){};
   NocleVariable(Lexeme lex): NocleTerminate(lex){};
   Symbol::PType get_result_type(PSymbolTable t);
+  bool check_lvalue(PSymbolTable);
   // virtual void get_str(std::stringstream& ss, int depth = 0);
 };
 
@@ -137,7 +149,7 @@ public:
 class NocleUnaryCast: public NocleUnary{
 public:
   NocleUnaryCast(): NocleUnary(){};
-  // NocleUnaryCast(Lexeme lex, PNocle ch = NULL);
+  NocleUnaryCast(Lexeme lex, PNocle ch = NULL);
   NocleUnaryCast(Symbol::PType, PNocle ch = NULL);
   Symbol::PType get_result_type(PSymbolTable t);
 private:
@@ -174,10 +186,10 @@ public:
   void set_child2(PNocle child);
   PNocle get_child2();
   void get_str(std::stringstream& ss, int depth = 0);
+  virtual bool check_types(PSymbolTable t);
   virtual Symbol::PType get_result_type(PSymbolTable t);
 protected:
-  virtual bool check_child_type(BaseSymbolType bst);
-private:
+  virtual bool check_child_type(BaseSymbolType bst1, BaseSymbolType bst2);
   PNocle child1;
   PNocle child2;
 };
@@ -188,7 +200,7 @@ public:
   NocleBinaryLogic(Lexeme lex, PNocle ch1 = NULL, PNocle ch2 = NULL):
     NocleBinary(lex, ch1, ch2){};
 protected:
-  virtual bool check_child_type(BaseSymbolType bst);
+  virtual bool check_child_type(BaseSymbolType bst1, BaseSymbolType bst2);
 };
 
 class NocleBinaryArithmetic: public NocleBinary{
@@ -197,7 +209,7 @@ public:
   NocleBinaryArithmetic(Lexeme lex, PNocle ch1 = NULL, PNocle ch2 = NULL):
     NocleBinary(lex, ch1, ch2){};
 protected:
-  virtual bool check_child_type(BaseSymbolType bst);
+  virtual bool check_child_type(BaseSymbolType bst1, BaseSymbolType bst2);
 };
 
 class NocleBinaryBitwice: public NocleBinary{
@@ -206,16 +218,17 @@ public:
   NocleBinaryBitwice(Lexeme lex, PNocle ch1 = NULL, PNocle ch2 = NULL):
     NocleBinary(lex, ch1, ch2){};
 protected:
-  virtual bool check_child_type(BaseSymbolType bst);
+  virtual bool check_child_type(BaseSymbolType bst1, BaseSymbolType bst2);
 };
 
 class NocleBinaryOther: public NocleBinary{
 public:
   NocleBinaryOther(): NocleBinary(){};
-  NocleBinaryOther(Lexeme lex, PNocle ch1, PNocle ch2, Symbol::PType tp):
+  NocleBinaryOther(Lexeme lex, PNocle ch1, PNocle ch2, Symbol::PType tp = NULL):
     NocleBinary(lex, ch1, ch2), result_type(tp){};
-  virtual Symbol::PType get_result_type(PSymbolTable t);
-private:
+    virtual Symbol::PType get_result_type(PSymbolTable t);
+protected:
+  virtual Symbol::PType get_wanted_result_type(PSymbolTable t);
   Symbol::PType result_type;
 };
 
@@ -224,16 +237,29 @@ public:
   NocleBinaryRange(): NocleBinaryOther(){};
   NocleBinaryRange(Lexeme lex, PNocle ch1 = NULL, PNocle ch2 = NULL);
 protected:
-  virtual bool check_child_type(BaseSymbolType bst);
+  virtual bool check_child_type(BaseSymbolType bst1, BaseSymbolType bst2);
 };
 
 class NocleBinaryPoint: public NocleBinaryOther{
 public:
   NocleBinaryPoint(): NocleBinaryOther(){};
   NocleBinaryPoint(Lexeme lex, PNocle ch1 = NULL, PNocle ch2 = NULL):
-    NocleBinaryOther(lex, ch1, ch2){};
+    NocleBinaryOther(lex, ch1, ch2, NULL){};
 protected:
-  virtual bool check_child_type(BaseSymbolType bst);
+  virtual bool check_lvalue(PSymbolTable);
+  // virtual Symbol::PType get_wanted_result_type(PSymbolTable t);
+  virtual Symbol::PType get_result_type(PSymbolTable t);
+  virtual bool check_child_type(BaseSymbolType bst1, BaseSymbolType bst2);
+};
+
+class NocleBinaryCompare: public NocleBinaryOther{
+public:
+  NocleBinaryCompare(): NocleBinaryOther(){};
+  NocleBinaryCompare(Lexeme lex, PNocle ch1 = NULL, PNocle ch2 = NULL):
+    NocleBinaryOther(lex, ch1, ch2, NULL){};
+protected:
+  virtual Symbol::PType get_wanted_result_type(PSymbolTable t);
+  virtual bool check_child_type(BaseSymbolType bst1, BaseSymbolType bst2);
 };
 
 class NocleArrayElement: public NocleBinaryOther{
@@ -241,7 +267,8 @@ public:
   NocleArrayElement(PNocle left, PNocle right): NocleBinaryOther(
     Lexeme("array_element", 0, 0, LT_ARRAY_ELEMENT), left, right){};
 protected:
-  virtual bool check_child_type(BaseSymbolType bst);
+  virtual Symbol::PType get_wanted_result_type(PSymbolTable t);
+  virtual bool check_child_type(BaseSymbolType bst1, BaseSymbolType bst2);
 };
 
 class NocleBinaryAssigment: public NocleBinary{
@@ -249,9 +276,8 @@ public:
   NocleBinaryAssigment(): NocleBinary(){};
   NocleBinaryAssigment(Lexeme lex, PNocle ch1 = NULL, PNocle ch2 = NULL):
     NocleBinary(lex, ch1, ch2){};
+  virtual bool check_types(PSymbolTable t);
 };
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
 //NocleMulty
@@ -272,6 +298,8 @@ protected:
 class NocleFunction: public NocleMulty{
 public:
   NocleFunction(): NocleMulty(Lexeme("function_call", 0, 0, LT_SEPARATOR)){};
+  virtual Symbol::PType get_result_type(PSymbolTable t);
+  virtual bool check_types(PSymbolTable t);
 private:
   // static Lexeme func = Lexeme("function", 0, 0, LT_SEPARATOR);
 };
@@ -281,7 +309,7 @@ public:
   NocleBlock(): NocleMulty(Lexeme("block", 0, 0, LT_SEPARATOR)){};
   NocleBlock(PSymbolTable t): NocleMulty(Lexeme("block", 0, 0, LT_SEPARATOR)),
     table(t){};
-  bool check_types(PSymbolTable);
+  virtual bool check_types(PSymbolTable);
   void print_table();
 private:
   PSymbolTable table;
@@ -296,6 +324,7 @@ public:
     this->add_child(block_if);
     this->add_child(block_else);
   };
+  bool check_types(PSymbolTable);
 };
 
 class NocleWhile: public NocleBinary{
@@ -303,6 +332,7 @@ public:
   NocleWhile(): NocleBinary(){};
   NocleWhile(PNocle expr, PNocle block): NocleBinary(Lexeme("while", 0, 0, LT_SEPARATOR),
     expr, block){};
+  bool check_types(PSymbolTable);
 };
 
 class NocleFor: public NocleMulty{
@@ -312,6 +342,7 @@ public:
     this->add_child(expr);
     this->add_child(block);
   };
+  bool check_types(PSymbolTable);
 private:
   PSymbolTable stable;
 };
@@ -320,6 +351,15 @@ class NocleArrayConst: public NocleMulty{
 public:
   NocleArrayConst(): NocleMulty(Lexeme("const_array", 0, 0, LT_SEPARATOR)){};
 };
+
+// class NocleProgram: public Nocle{
+// public:
+//   NocleProgram(): NocleMulty(){};
+//   void set_block();
+//   void set_symbol_table();
+//   PNocle get_block();
+//   PSymbolTable get_symbol_table();
+// }
 
 typedef std::shared_ptr<NocleMulty> PNocleMulty;
 typedef std::shared_ptr<NocleUnary> PNocleUnary;
@@ -356,8 +396,12 @@ namespace Symbol{
 
   class Record: public Type{
   public:
-    Record();
-    Record(std::string name, PSymbolTable st);
+    Record(){};
+    Record(std::string name, PSymbolTable st):
+      Type(name), stable(st){};
+    PBase get_symbol(std::string name);
+    PSymbolTable get_table();
+    BaseSymbolType get_base_type();
   private:
     PSymbolTable stable;
   };
@@ -367,6 +411,8 @@ namespace Symbol{
     Procedure();
     Procedure(std::string name, PSymbolTable st);
     void set_block(PNocle b);
+    PType get_return_type();
+    PSymbolTable get_table();
   protected:
     PSymbolTable stable;
     PNocle block;
@@ -382,6 +428,9 @@ namespace Symbol{
     // PSymbolTable stable;
     // PNocle block;
   };
+  typedef std::shared_ptr<Procedure> PProcedure;
 };
+// typedef std::shared_ptr<NocleBinary> PNocleBinary;
+// typedef std::shared_ptr<NocleBinary> PNocleBinary;
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -44,14 +44,14 @@ map<string, int> SyntaxisAnalyser::operation_binary_left = {
 };
 map<string, int> SyntaxisAnalyser::operation_binary_right = {
   {"=", 15},
-  {"+=", 15},
-  {"-=", 15},
-  {"*=", 15},
-  {"/=", 15},
-  {"%=", 15},
-  {"&=", 15},
-  {"|=", 15},
-  {"^=", 15}
+  // {"+=", 15},
+  // {"-=", 15},
+  // {"*=", 15},
+  // {"/=", 15},
+  // {"%=", 15},
+  // {"&=", 15},
+  // {"|=", 15},
+  // {"^=", 15}
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -107,6 +107,88 @@ Symbol::PType get_type_from_nocle(PNocle node, PSymbolTable t){
   return NULL;
 }
 
+PNocle get_nocle_leteral(Lexeme cur){
+  Nocle* temp;
+  switch(cur.get_type()){
+    case LT_INT:
+      temp = new NocleInteger(cur);
+      break;
+    case LT_FLOAT:
+      temp = new NocleFloat(cur);
+      break;
+    case LT_STRING:
+      temp = new NocleString(cur);
+      break;
+    case LT_TRUE:
+    case LT_FALSE:
+      temp = new NocleBool(cur);
+      break;
+    default:
+      cur.print();
+      throw 2.0;
+  }
+  return PNocle(temp);
+}
+
+PNocle get_nocle_identificator(Lexeme cur){
+  Nocle* temp;
+  switch(cur.get_type()){
+    case LT_FUNCTION_NAME:
+    case LT_VARIABLE:
+      // cur.print();
+      temp = new NocleVariable(cur);
+      // cout << temp->check_lvalue(NULL) << endl;
+      break;
+      // temp = new NocleVariable(cur);
+    case LT_TYPE_NAME:
+      temp = new NocleTypeName(cur);
+      break;
+  }
+  return PNocle(temp);
+}
+
+PNocle get_nocle_bin_operator(Lexeme cur, PNocle left, PNocle right){
+  Nocle* temp;
+  switch (cur.get_type()){
+    case LT_ADD:
+    case LT_SUB:
+    case LT_MULT:
+    case LT_DIV:
+      temp = new NocleBinaryArithmetic(cur, left, right);
+      break;
+    case LT_LOG_AND:
+    case LT_LOG_OR:
+      temp = new NocleBinaryLogic(cur, left, right);
+      break;
+    case LT_EQ:
+    case LT_NEQ:
+    case LT_LT:
+    case LT_LTEQ:
+    case LT_GT:
+    case LT_GTEQ:
+      temp = new NocleBinaryCompare(cur, left, right);
+      break;
+    case LT_BIN_AND:
+    case LT_BIN_OR:
+    case LT_BIN_XOR:
+    case LT_SHL:
+    case LT_SHR:
+      temp = new NocleBinaryBitwice(cur, left, right);
+      break;
+    case LT_POINT:
+      temp = new NocleBinaryPoint(cur, left, right);
+      break;
+    case LT_RANGE:
+    case LT_OPEN_RANGE:
+      temp = new NocleBinaryRange(cur, left, right);
+      break;
+    default:
+      cur.print();
+      throw Errors::WrongBinaryOperator(cur);
+  }
+  return PNocle(temp);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //SyntaxisAnalyser
 
@@ -116,7 +198,9 @@ PNocle SyntaxisAnalyser::get_tree(){
   // searcher.next();
   // parse_def_function(st);
   PNocle temp = parse_statment(st);
-  st->print();
+  cout << "start checking" << endl;
+  temp->check_types(st);
+  // st->print();
   return temp;
 }
 
@@ -133,6 +217,9 @@ PNocle SyntaxisAnalyser::parse_program(){
         temp = parse_type(st);
         break;
       case LT_CLASS:
+        searcher.next();
+        temp = parse_class(st);
+        break;
       case LT_DEF:
         searcher.next();
         temp = parse_def_function(st);
@@ -142,6 +229,8 @@ PNocle SyntaxisAnalyser::parse_program(){
       case LT_REF:
         searcher.next();
         temp = parse_def_variable(st);
+        // cout << "tut2" << endl;
+        // searcher.get_current().print();
         break;
       case LT_DO:
         searcher.next();
@@ -149,6 +238,8 @@ PNocle SyntaxisAnalyser::parse_program(){
         break;
       case LT_EOF:
         block->print_table();
+        cout << "start checking" << endl;
+        block->check_types(st);
         return PNocle(block);
     }
     block->add_child(temp);
@@ -194,6 +285,31 @@ PNocle SyntaxisAnalyser::parse_statment(PSymbolTable t){
   }
   // searcher.get_current().print();
   return temp;
+}
+
+PNocle SyntaxisAnalyser::parse_class(PSymbolTable t){
+  Lexeme name = searcher.get_current();
+  searcher.next();
+  PSymbolTable inside(new SymbolTable());
+  while (searcher.get_current() != LT_END){
+    switch(searcher.get_current().get_type()){
+      case LT_LET:
+      case LT_VAR:
+        searcher.next();
+        parse_def_variable(inside);
+        break;
+      default:
+        throw 1; // Need cool error
+    }
+  }
+  // searcher.get_current().print();
+  searcher.next();
+  t->add_symbol(Symbol::PBase(new Symbol::Record(
+    name.get_str(),
+    inside
+  )));
+  // cout << "tut" << endl;
+  return PNocle(new Nocle());
 }
 
 PNocle SyntaxisAnalyser::parse_type(PSymbolTable t){
@@ -353,7 +469,7 @@ PNocle SyntaxisAnalyser::parse_expr(int priority){
     }
     else{
       PNocle right = parse_expr(priority + 1);
-      temp = get_binary_Nocle(next, temp, right);
+      temp = get_nocle_bin_operator(next, temp, right);
       next = searcher.get_current();
     }
   }
@@ -367,7 +483,7 @@ PNocle SyntaxisAnalyser::parse_factor(){
   }
   Lexeme next = searcher.next();
   if (cur.is_leteral()){
-    return PNocle(new NocleTerminate(cur));
+    return get_nocle_leteral(cur);
   }
   // cout << cur.get_type() << " " << cur.is_identificator() << endl;
   if (operation_unary_prefix[cur.get_str()]){
@@ -401,45 +517,69 @@ PNocle SyntaxisAnalyser::parse_factor(){
   // return NULL;
 }
 
-PNocle SyntaxisAnalyser::parse_function_call(PNocle ident, LexemeType finish){
+PNocle SyntaxisAnalyser::parse_function_call(){
+  // searcher.get_current().print();
+  Lexeme cur = searcher.get_current();
+  Lexeme next = searcher.next_with_spaces();
   NocleMulty* res = new NocleFunction();
-  res->add_child(ident);
+  res->add_child(get_nocle_identificator(cur));
+  if (next == LT_SPACE || next == LT_NEW_LINE || next == LT_OP){
+    searcher.next();
+    if (next == LT_OPERATOR || next == LT_ASSIGMENT
+      || next == LT_NEW_LINE || next.is_close_separator()){
+      return PNocle(res);
+    }
+  }
   while (true){
-    // cout << "REQ" << endl;
     PNocle temp = parse_expr();
     res->add_child(temp);
-    // cout << searcher.get_current().get_str() << endl;
     if (searcher.get_current() != LT_COMMA){
       break;
     }
     searcher.next();
   }
-  // cout << "REQ " << next.get_str() << endl;
-  if (finish != LT_NONE){
-    require_lexeme(finish);
+  if (next == LT_OP){
+    require_lexeme(LT_CP);
     searcher.next();
   }
   return PNocle(res);
 }
 
-PNocle SyntaxisAnalyser::parse_identificator(){
+PNocle SyntaxisAnalyser::parse_cast(){
+  searcher.get_current().print();
   Lexeme cur = searcher.get_current();
   Lexeme next = searcher.next_with_spaces();
-  PNocle ident(new NocleTerminate(cur));
-  if (next == LT_SPACE){
-    next = searcher.next();
-    if (!(next == LT_OPERATOR || next == LT_ASSIGMENT || next.is_close_separator())){
-      return parse_function_call(ident, LT_NONE);
-    }
+  switch (next.get_type()){
+    case LT_SPACE:
+    case LT_OP:
+      searcher.next();
+      break;
+    case LT_NEW_LINE:
+      searcher.next();
+    default:
+      return get_nocle_identificator(cur);
   }
-  if (next == LT_NEW_LINE){
-    next = searcher.next();
-  }
+  PNocle casted = parse_expr();
   if (next == LT_OP){
-    searcher.next();
-    return parse_function_call(ident, LT_CP);
+    require_lexeme(LT_CP);
   }
-  return ident;
+  NocleUnaryCast* res = new NocleUnaryCast(cur, casted);
+  return PNocle(res);
+}
+
+PNocle SyntaxisAnalyser::parse_identificator(){
+  Lexeme cur = searcher.get_current();
+  if (cur == LT_TYPE_NAME){
+    searcher.get_current().print();
+    return parse_cast();
+  }
+  if (cur == LT_FUNCTION_NAME){
+    return parse_function_call();
+  }
+  else{
+    searcher.next();
+    return get_nocle_identificator(cur);
+  }
 }
 
 bool SyntaxisAnalyser::require_lexeme(LexemeType lt){
