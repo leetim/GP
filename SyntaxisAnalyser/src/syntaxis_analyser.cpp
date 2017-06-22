@@ -199,7 +199,7 @@ PNocle SyntaxisAnalyser::get_tree(){
   // parse_def_function(st);
   PNocle temp = parse_statment(st);
   cout << "start checking" << endl;
-  temp->check_types(st);
+  temp->check_types(tst);
   // st->print();
   return temp;
 }
@@ -239,7 +239,7 @@ PNocle SyntaxisAnalyser::parse_program(){
       case LT_EOF:
         block->print_table();
         cout << "start checking" << endl;
-        block->check_types(st);
+        block->check_types(tst);
         return PNocle(block);
     }
     block->add_child(temp);
@@ -283,7 +283,7 @@ PNocle SyntaxisAnalyser::parse_statment(PSymbolTable t){
     default:
       temp = parse_simple_statment(t);
   }
-  // searcher.get_current().print();
+  temp->check_types(t);
   return temp;
 }
 
@@ -393,8 +393,9 @@ PNocle SyntaxisAnalyser::parse_def_variable(PSymbolTable t){
   // searcher.get_current().print();
   if (assigment.get_str() == "="){
     searcher.next();
-    PNocle expr = parse_simple_statment();
+    expr = parse_simple_statment();
     var = new Symbol::Variable(name.get_str(), get_type_from_nocle(type, t), expr);
+    expr->check_types(t);
   }
   else{
     var = new Symbol::Variable(name.get_str(), get_type_from_nocle(type, t));
@@ -608,6 +609,7 @@ PNocle SyntaxisAnalyser::parse_simple_statment(PSymbolTable t){
     cur = searcher.get_current();
     // cur.print();
   }
+  temp->check_types(t);
   return temp;
 }
 
